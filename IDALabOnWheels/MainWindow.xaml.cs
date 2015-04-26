@@ -74,6 +74,8 @@ namespace IDALabOnWheels
         int C_SCENE_DYNAMIC_ELEMENT_COUNT = 2;
         mat4[] ModelMatrix;
         bool _rotateWorld;
+        float _modelScaleFactor; // A scaling factor that depends on the obj model being loaded. TODO: Size the model automatically by finding the max/min coordinates
+        float _modelYAxixRotFactor; // similar roation
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
@@ -221,7 +223,7 @@ namespace IDALabOnWheels
             VertexAttributes.Instance.AttrbTexture = attribute_vtexture;
             shaderProgram.AssertValid(gl);
 
-            InitMatrices();
+            
             InitializeFixedBufferContents();
             //poly = ObjFileReader.ReadFile("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\Simba.obj");
 
@@ -332,7 +334,9 @@ namespace IDALabOnWheels
             skyBox = new SkyBox();
             skyBox.loadSkybox(gl, null);
 
-            ObjModel.LoadObj("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\Wolf\\Wolf.obj", gl);
+            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl); _modelScaleFactor = 3f;
+            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 0.05f; _modelYAxixRotFactor = 215f;
+            InitMatrices();
         }
 
         float rotation2 = 0;
@@ -340,9 +344,16 @@ namespace IDALabOnWheels
         void InitMatrices()
         {
             //  Create a model matrix to make the model a little bigger.
-            ModelMatrix[0] = glm.scale(new mat4(1.0f), new vec3(3f));
-            ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
             ModelMatrix[1] = mat4.identity();
+            ModelMatrix[0] = mat4.identity();
+            ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
+            ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(_modelYAxixRotFactor), new vec3(0f, 1f, 0f));
+            ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+        }
+
+        void InitObj()
+        {
+
         }
         void SetMatrices(int index)
         {
@@ -383,9 +394,9 @@ namespace IDALabOnWheels
                         // Roll = rotate about X axes
                         ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].angleY), new vec3(1f, 0f, 0f));
                         // Yaw = rotate about Y axis
-                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].heading), new vec3(0f, 1f, 0f));
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].heading + _modelYAxixRotFactor), new vec3(0f, 1f, 0f));
                         //  Create a model matrix to make the model a little bigger.
-                        ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(4f));
+                        ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
 
 
 
@@ -879,9 +890,9 @@ namespace IDALabOnWheels
 
             ObjModel.RenderObj(GL);
 
-            modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-            ObjModel.RenderObj(GL);
+            //modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
+            //shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            //ObjModel.RenderObj(GL);
             shaderProgram.Unbind(GL);
         }
 
@@ -931,6 +942,8 @@ namespace IDALabOnWheels
                     ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att[att.Length - 1].heading), new vec3(0f, 1f, 0f));
                 }
             }
+           // ModelMatrix[1] = mat4.identity();
+           // ModelMatrix[1] = glm.translate(ModelMatrix[1], new vec3(0f, 0f, 0.1f));
 
             //            // Compute new orientation
             //float horizontalAngle=0f,verticalAngle =0f;  

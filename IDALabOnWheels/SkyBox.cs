@@ -28,7 +28,7 @@ namespace IDALabOnWheels
         VertexBufferArray skyVAO;
         string[] TexPath;
 
-        float C_BOX_END = 50f;
+        float C_BOX_END = 500f;
 
         // string a_sFront, string a_sBack, string a_sLeft, string a_sRight, string a_sTop, string a_sBottom
         public void loadSkybox(OpenGL GL, string[] texPath)

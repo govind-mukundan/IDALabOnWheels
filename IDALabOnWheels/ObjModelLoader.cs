@@ -165,7 +165,7 @@ namespace IDALabOnWheels
             for (int i = 0; i < _numMeshes; i++)
             {
                 TextureSlot tSlot = new TextureSlot();
-                if (model.Materials[i].GetMaterialTexture(TextureType.Diffuse, 0, out tSlot))
+                if (model.Materials[model.Meshes[i].MaterialIndex].GetMaterialTexture(TextureType.Diffuse, 0, out tSlot))
                 {
                     TexContainer tc = TextureManager.Instance.GetElement(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath);
                     tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
