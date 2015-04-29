@@ -78,6 +78,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ManifestResourceLoader.cs" />
+    <Compile Include="ViewModel.cs" />
     <Compile Include="SerialPortAdapter.cs" />
     <Compile Include="Shaders.cs" />
     <Compile Include="SharpGLEx.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="TextureManager.cs" />
     <Compile Include="Uniforms.cs" />
     <Compile Include="VertexAttributes.cs" />
+    <Compile Include="ViewModelEntity.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

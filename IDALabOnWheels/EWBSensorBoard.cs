@@ -169,15 +169,16 @@ namespace IDALabOnWheels
         }
 
 
-        public EWBSensorBoard(string comPort)
+        public EWBSensorBoard()
         {
             _comInterface = new SerialPortAdapter();
             _comInterface.SerialDataRxedHandler = RxByteStreamParser;
+        }
+
+        public bool Open(string comPort)
+        {
             Debug.WriteLine("Opening port to:" + comPort);
-            if (_comInterface.Open(comPort))
-            {
-                Debug.WriteLine("Opened port to:" + comPort);
-            }
+            return (_comInterface.Open(comPort));
         }
 
         public void DoOnQuit()

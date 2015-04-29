@@ -20,6 +20,7 @@ using SharpGL.Shaders;
 using System.Drawing;
 using System.Diagnostics;
 using DR = System.Drawing;
+using System.ComponentModel;
 
 namespace IDALabOnWheels
 {
@@ -73,7 +74,6 @@ namespace IDALabOnWheels
 
         int C_SCENE_DYNAMIC_ELEMENT_COUNT = 2;
         mat4[] ModelMatrix;
-        bool _rotateWorld;
         float _modelScaleFactor; // A scaling factor that depends on the obj model being loaded. TODO: Size the model automatically by finding the max/min coordinates
         float _modelYAxixRotFactor; // similar roation
 
@@ -83,8 +83,24 @@ namespace IDALabOnWheels
         public MainWindow()
         {
             InitializeComponent();
+            MainVM.PropertyChanged += Event_PropertyChanged;
+            MainVM.SetupDefaultGUI();
+
             ObjModel = new ObjModelLoader();
             ModelMatrix = new mat4[C_SCENE_DYNAMIC_ELEMENT_COUNT];
+        }
+
+        /// <summary>
+        /// Handles changes in the model, reflecting this change in the UI (view)
+        /// Callback whenever UI properties change
+        /// </summary>
+        private void Event_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "RotateWorld")
+            {
+                //UpdateModelParams(_currentModel);
+            }
+
         }
 
         /// <summary>
@@ -374,7 +390,7 @@ namespace IDALabOnWheels
                 //  Nudge the rotation.
                 rotation += 1f;
 
-                if (!_rotateWorld)
+                if (!MainVM.RotateWorld)
                 {
                     Attitude[] att = null;
                     if (EWBBoard != null) att = EWBBoard.GetAttitude();
@@ -920,7 +936,7 @@ namespace IDALabOnWheels
             float lx = (float)Math.Sin(D2R(rotation));
             float lz = (float)-Math.Cos(D2R(rotation));
 
-            if (_rotateWorld)
+            if (MainVM.RotateWorld)
             {
                 Attitude[] att = null;
                 if (EWBBoard != null) att = EWBBoard.GetAttitude();
@@ -1020,9 +1036,13 @@ namespace IDALabOnWheels
 
         private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            EWBBoard = new EWBSensorBoard(cmbxPorts.Text);
-            btnStartStop.IsEnabled = true;
-            btnConnect.IsEnabled = false;
+            EWBBoard = new EWBSensorBoard();
+            if (EWBBoard.Open(cmbxPorts.Text))
+            {
+                MainVM.StartStopIsEnabled = true;
+                Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
+                MainVM.BTConnectIsEnabled = false;
+            }
 
         }
 
@@ -1058,10 +1078,6 @@ namespace IDALabOnWheels
 
         private void cbSimulate_Click(object sender, RoutedEventArgs e)
         {
-            if (cbSimulate.IsChecked == true)
-                _rotateWorld = true;
-            else
-                _rotateWorld = false;
 
             //if (cbSimulate.IsChecked == true)
             //{
