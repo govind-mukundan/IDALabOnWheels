@@ -33,6 +33,9 @@ namespace IDALabOnWheels
 
         MeshVertexPointers[] _meshPointer; //
 
+        // Use a single color mapped into a texture for objects that don't come with a texture map
+        string C_DUMMY_TEXTURE = "Dummy1x1"; // A dummy texture path for 1x1 textures that are created from colors
+
 
         public ObjModelLoader()
         {
@@ -98,7 +101,7 @@ namespace IDALabOnWheels
                        Vector3D Ntemp = model.Meshes[j].HasNormals ? model.Meshes[j].Normals[model.Meshes[j].Faces[k].Indices[q]] : new Vector3D(); // Find the normals
                        vObjNormals[i] = new vec3(Ntemp.X, Ntemp.Y, Ntemp.Z);
 
-                       vColor[i] = GL.Color(Color.Green);
+                       vColor[i] = GL.Color(Color.Red);
                     }
                 }
                 _meshPointer[j].End = i - 1;
@@ -117,6 +120,9 @@ namespace IDALabOnWheels
                     _texManager.CreateTexture(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath, GL);
                 }
             }
+
+            if (!model.HasTextures) // IF the model does not have any textures, lets create a texture from a color and use that
+                _texManager.CreateTexture1x1(C_DUMMY_TEXTURE, GL, false, Color.Olive);
 
             // Materials and vertex properties are done, lets create the VAO
 
@@ -165,16 +171,27 @@ namespace IDALabOnWheels
             for (int i = 0; i < _numMeshes; i++)
             {
                 TextureSlot tSlot = new TextureSlot();
+                TexContainer tc;
                 if (model.Materials[model.Meshes[i].MaterialIndex].GetMaterialTexture(TextureType.Diffuse, 0, out tSlot))
                 {
-                    TexContainer tc = TextureManager.Instance.GetElement(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath);
+                    tc = TextureManager.Instance.GetElement(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath);
                     tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
                     GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
                     GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
 
-                    GL.DrawArrays(OpenGL.GL_TRIANGLES, /* Start Index in the buffer */ _meshPointer[i].Start
-                        , _meshPointer[i].End - _meshPointer[i].Start /*Count of vertices */);
                 }
+                else
+                {
+
+                    tc = TextureManager.Instance.GetElement(C_DUMMY_TEXTURE);
+                    tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
+                    GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
+                    GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
+
+                }
+                GL.DrawArrays(OpenGL.GL_TRIANGLES, /* Start Index in the buffer */ _meshPointer[i].Start
+    , _meshPointer[i].End - _meshPointer[i].Start /*Count of vertices */);
+                
             }
             objVAO.Unbind(GL);
 

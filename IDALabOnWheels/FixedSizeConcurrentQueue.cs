@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GlmNet;
 
 namespace IDALabOnWheels
 {
@@ -49,6 +50,23 @@ namespace IDALabOnWheels
                 data[i] = collection.Take(); // will block if it's not available
             }
             return (data);
+        }
+
+    }
+
+    public static class myGLM
+    {
+        public static mat4 transpose(mat4 ip)
+        {
+            mat4 op = mat4.identity();
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    op[j,i] = ip[i,j];
+                }
+            }
+        return (op);
         }
 
     }

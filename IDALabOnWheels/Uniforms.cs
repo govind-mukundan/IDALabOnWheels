@@ -26,5 +26,8 @@ namespace IDALabOnWheels
         }
 
         public int Sampler;
+        public int SunlightColor;
+        public int SunlightAmbientIntensity;
+        public int SunlightDirection;
     }
 }

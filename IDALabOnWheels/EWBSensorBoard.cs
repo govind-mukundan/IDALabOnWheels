@@ -219,6 +219,31 @@ namespace IDALabOnWheels
         {
             return (AttitudeQ.GetAvailableData());
         }
+
+        public Attitude GetAverageAttitude()
+        {
+            Attitude[] att = null;
+            Attitude avg = null;
+
+            att = GetAttitude();
+            if (att == null) return (null);
+
+            float[][] angles = new float[3][];
+            angles[0] = new float[att.Length]; angles[1] = new float[att.Length]; angles[2] = new float[att.Length];
+            for (int i = 0; i < att.Length; i++)
+            {
+                angles[0][i] = att[i].angleX;
+                angles[1][i] = att[i].angleY;
+                angles[2][i] = att[i].heading;
+            }
+
+            avg.angleX = Utility.Median(angles[0]);
+            avg.angleY = Utility.Median(angles[1]);
+            avg.heading = Utility.Median(angles[2]);
+
+            return (avg);
+        }
+
         public MagneticField[] GetCompass()
         {
             return (MagnetoQ.GetAvailableData());

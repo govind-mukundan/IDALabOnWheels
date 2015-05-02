@@ -34,6 +34,9 @@ namespace IDALabOnWheels
 
         //  The shader program for our vertex and fragment shader.
         private ShaderProgram shaderProgram;
+        ShaderProgram lightingShader;
+        string[] vertexShaderSource;
+        string[] fragmentShaderSource;
         //  The projection, view and model matrices.
         mat4 projectionMatrix;
         mat4 viewMatrix;
@@ -88,6 +91,9 @@ namespace IDALabOnWheels
 
             ObjModel = new ObjModelLoader();
             ModelMatrix = new mat4[C_SCENE_DYNAMIC_ELEMENT_COUNT];
+
+            vertexShaderSource = new string[2];
+            fragmentShaderSource = new string[2];
         }
 
         /// <summary>
@@ -223,15 +229,18 @@ namespace IDALabOnWheels
             // gl.ClearColor(0.4f, 0.6f, 0.9f, 0.0f);
             //gl.ClearColor(0f, 0f, 0f, 0.0f);
             //  Create the shader program.
-            var vertexShaderSource = ManifestResourceLoader.LoadTextFile("vertex_shader.glsl");
-            var fragmentShaderSource = ManifestResourceLoader.LoadTextFile("fragment_shader.glsl");
+             vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
+             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
             shaderProgram = new ShaderProgram();
-            shaderProgram.Create(gl, vertexShaderSource, fragmentShaderSource, null);
+            shaderProgram.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
             attribute_vpos = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vTextureCoord");
             attribute_vSurfNormal = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vSurfaceNormal");
             Uniforms.Instance.Sampler = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "uSampler");
+            Uniforms.Instance.SunlightColor = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.vColor");
+            Uniforms.Instance.SunlightAmbientIntensity = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.fAmbientIntensity");
+            Uniforms.Instance.SunlightDirection = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.vDirection");
 
             VertexAttributes.Instance.AttrbPosition = attribute_vpos;
             VertexAttributes.Instance.AttrbColor = attribute_vcol;
@@ -351,7 +360,8 @@ namespace IDALabOnWheels
             skyBox.loadSkybox(gl, null);
 
             //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl); _modelScaleFactor = 3f;
-            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 0.05f; _modelYAxixRotFactor = 215f;
+            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 0.05f; _modelYAxixRotFactor = 215f;
+            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = .1f; _modelYAxixRotFactor = 0;
             InitMatrices();
         }
 
@@ -365,6 +375,8 @@ namespace IDALabOnWheels
             ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
             ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(_modelYAxixRotFactor), new vec3(0f, 1f, 0f));
             ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+           // normalMatrix = myGLM.transpose(new mat4(new vec4(1f, 2f, 3f, 4f), new vec4(5f, 6f, 7f, 8f), new vec4(9f, 10f, 11f, 12f), new vec4(13f, 14f, 15f, 16f)));
+            normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
         }
 
         void InitObj()
@@ -414,7 +426,8 @@ namespace IDALabOnWheels
                         //  Create a model matrix to make the model a little bigger.
                         ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
 
-
+                        normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
+                        //normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
                         // ModelMatrix[0] = glm.scale(new mat4(1.0f), new vec3(4f));
                     }
@@ -441,7 +454,7 @@ namespace IDALabOnWheels
             }
 
             //normalMatrix = glm.inverse(modelMatrix);
-            normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
+           // normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
         }
 
@@ -861,6 +874,8 @@ namespace IDALabOnWheels
         }
 
 
+        
+
         /// <summary>
         /// Since the X cordinates are fixed for each sample in the buffer and just depends on the actual size of the buffer, they can be initialized once and for all.
         /// </summary>
@@ -897,12 +912,15 @@ namespace IDALabOnWheels
             //normalMatrix = mat4.identity();
             //viewMatrix = glm.lookAt(new vec3(0f, 0f, 0f), new vec3(0f, 0f, 100f), new vec3(0.0f, 1.0f, 0.0f));
             SetMatrices(0);
-
             shaderProgram.Bind(GL);
             shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
             shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
             shaderProgram.SetUniformMatrix4(GL, "modelMatrix", ModelMatrix[0].to_array());
             shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+
+            GL.Uniform3(Uniforms.Instance.SunlightColor, 1f,1f,1f);
+            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, .8f);
+            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, -1f, 0f);
 
             ObjModel.RenderObj(GL);
 
@@ -938,25 +956,26 @@ namespace IDALabOnWheels
 
             if (MainVM.RotateWorld)
             {
-                Attitude[] att = null;
-                if (EWBBoard != null) att = EWBBoard.GetAttitude();
+                Attitude att = null;
 
-                if (att != null)
-                {
-                    Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att[att.Length - 1].angleX, att[att.Length - 1].angleY, att[att.Length - 1].heading);
+                if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
 
-                    // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
-                    // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
-                    // to get Scale, Rotate and Translate effect on the actual data.
+                    if (att != null)
+                    {
+                        Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
 
-                    ModelMatrix[1] = mat4.identity();
-                    // Pitch = rotate about Z axes
-                    ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att[att.Length - 1].angleX), new vec3(0f, 0f, 1f));
-                    // Roll = rotate about X axes
-                    ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att[att.Length - 1].angleY), new vec3(1f, 0f, 0f));
-                    // Yaw = rotate about Y axis
-                    ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att[att.Length - 1].heading), new vec3(0f, 1f, 0f));
-                }
+                        // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
+                        // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
+                        // to get Scale, Rotate and Translate effect on the actual data.
+
+                        ModelMatrix[1] = mat4.identity();
+                        // Pitch = rotate about Z axes
+                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.angleX), new vec3(0f, 0f, 1f));
+                        // Roll = rotate about X axes
+                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.angleY), new vec3(1f, 0f, 0f));
+                        // Yaw = rotate about Y axis
+                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.heading), new vec3(0f, 1f, 0f));
+                    }
             }
            // ModelMatrix[1] = mat4.identity();
            // ModelMatrix[1] = glm.translate(ModelMatrix[1], new vec3(0f, 0f, 0.1f));

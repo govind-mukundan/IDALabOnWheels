@@ -43,12 +43,19 @@ namespace IDALabOnWheels
             //TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_rt.jpg";
             //TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_up.jpg";
             //TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_dn.jpg";
-            TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\front.jpg";
-            TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\back.jpg";
-            TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\right.jpg";
-            TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\left.jpg";
-            TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\up.jpg";
-            TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\down.jpg";
+            //TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\front.jpg";
+            //TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\back.jpg";
+            //TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\right.jpg";
+            //TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\left.jpg";
+            //TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\up.jpg";
+            //TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\down.jpg";
+
+            TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_ft.jpg";
+            TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_bk.jpg";
+            TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_lf.jpg";
+            TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_rt.jpg";
+            TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_up.jpg";
+            TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_dn.jpg";
 
             for (int i = 0; i < 6; i++)
             {
@@ -89,12 +96,14 @@ namespace IDALabOnWheels
 
             vec2[] vSkyBoxTexCoords = new vec2[vSkyBoxVertices.Length];
             vec3[] vSkyBoxNormals = new vec3[vSkyBoxVertices.Length];
+            vec3[] vSkyBoxColor = new vec3[vSkyBoxVertices.Length];
 
             // Build the data using a bit of magic
             for (int i = 0; i < 24; i++)
             {
                 vSkyBoxTexCoords[i] = SkyBoxTexCoords[i % 4];
                 vSkyBoxNormals[i] = SkyBoxNormals[i / 4];
+                vSkyBoxColor[i] = GL.Color(Color.White);
             }
 
             skyVAO = new VertexBufferArray();
@@ -119,6 +128,11 @@ namespace IDALabOnWheels
             skyVBO[2].Create(GL);
             skyVBO[2].Bind(GL);
             skyVBO[2].SetData(GL, VertexAttributes.Instance.AttrbSurfaceNormal, vSkyBoxNormals, false, 3);
+
+            //skyVBO[3] = new VertexBuffer();
+            //skyVBO[3].Create(GL);
+            //skyVBO[3].Bind(GL);
+            //skyVBO[3].SetData(GL, VertexAttributes.Instance.AttrbColor, vSkyBoxColor, false, 3);
 
             skyVAO.Unbind(GL);
 

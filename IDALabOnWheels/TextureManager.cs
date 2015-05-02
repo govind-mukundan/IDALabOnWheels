@@ -94,8 +94,41 @@ namespace IDALabOnWheels
                 texC.Tex.Bind(gl);
                 gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
                 _textureCollection.Add(path, texC);
+            }
+        }
 
+        /// <summary>
+        /// Create a 2D texture given an array of RGB values
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="gl"></param>
+        /// <param name="UseNewTU"></param>
+        public void CreateTexture1x1(string path, OpenGL gl, bool UseNewTU, Color color)
+        {
+            if (!_textureCollection.ContainsKey(path))
+            {
+                Debug.WriteLine("Found New Texture! " + "ID: " + _idCount.ToString() + " Path: " + path);
 
+                if (UseNewTU)
+                    _idCount++;
+
+                int[] test = new int[3];
+                gl.GetInteger(OpenGL.GL_MAX_TEXTURE_IMAGE_UNITS, test);
+                if (test[0] <= _idCount)
+                {
+                    throw new Exception("Out of Texture Units");
+                }
+
+                Bitmap img = new Bitmap(1,1);
+                img.SetPixel(0, 0, color);
+                TexContainer texC = new TexContainer(new Texture(), _idCount);
+
+                gl.Enable(OpenGL.GL_TEXTURE_2D);
+                gl.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)_idCount);
+                texC.Tex.Create(gl, img);
+                texC.Tex.Bind(gl);
+                gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
+                _textureCollection.Add(path, texC);
             }
         }
 
