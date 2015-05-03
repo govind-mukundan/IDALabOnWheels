@@ -77,6 +77,7 @@ namespace IDALabOnWheels
 
         int C_SCENE_DYNAMIC_ELEMENT_COUNT = 2;
         mat4[] ModelMatrix;
+        mat4[] ViewMatrix;
         float _modelScaleFactor; // A scaling factor that depends on the obj model being loaded. TODO: Size the model automatically by finding the max/min coordinates
         float _modelYAxixRotFactor; // similar roation
 
@@ -91,6 +92,7 @@ namespace IDALabOnWheels
 
             ObjModel = new ObjModelLoader();
             ModelMatrix = new mat4[C_SCENE_DYNAMIC_ELEMENT_COUNT];
+            ViewMatrix = new mat4[C_SCENE_DYNAMIC_ELEMENT_COUNT];
 
             vertexShaderSource = new string[2];
             fragmentShaderSource = new string[2];
@@ -360,8 +362,8 @@ namespace IDALabOnWheels
             skyBox.loadSkybox(gl, null);
 
             //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl); _modelScaleFactor = 3f;
-            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 0.05f; _modelYAxixRotFactor = 215f;
-            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = .1f; _modelYAxixRotFactor = 0;
+            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
+            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
             InitMatrices();
         }
 
@@ -372,11 +374,16 @@ namespace IDALabOnWheels
             //  Create a model matrix to make the model a little bigger.
             ModelMatrix[1] = mat4.identity();
             ModelMatrix[0] = mat4.identity();
-            ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
+            //ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
+            ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(-ObjModel.Centroid.x, -ObjModel.Centroid.y, -ObjModel.Centroid.z));
+           // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, 0f, ObjModel.Centroid.z));
             ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(_modelYAxixRotFactor), new vec3(0f, 1f, 0f));
             ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
            // normalMatrix = myGLM.transpose(new mat4(new vec4(1f, 2f, 3f, 4f), new vec4(5f, 6f, 7f, 8f), new vec4(9f, 10f, 11f, 12f), new vec4(13f, 14f, 15f, 16f)));
             normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
+
+            ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+            ViewMatrix[1] = mat4.identity();
         }
 
         void InitObj()
@@ -395,38 +402,44 @@ namespace IDALabOnWheels
                 // projectionMatrix = glm.ortho(-aspectRatio * viewSize/2 , aspectRatio * viewSize/2, viewSize/2, viewSize/2, -1000, 1000);
                 // projectionMatrix = glm.ortho((float)Width, (float)Height, (float)Width, (float)Height);
                 //  Create a view matrix to move us back a bit.
-                viewMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 0.0f, -1.0f));
+                //ViewMatrix[0] = glm.translate(new mat4(1.0f), new vec3(0.0f, 0.0f, -1.0f));
                 //viewMatrix =  glm.lookAt(new vec3(0.0f, 0.0f, 5.0f), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-                viewMatrix = glm.lookAt(new vec3(-10f, 10f, -10f), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+
+
 
                 //  Nudge the rotation.
                 rotation += 1f;
-
+              //  ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+              //  ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                
                 if (!MainVM.RotateWorld)
                 {
-                    Attitude[] att = null;
-                    if (EWBBoard != null) att = EWBBoard.GetAttitude();
+                    Attitude att = null;
+
+                    if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
 
                     if (att != null)
                     {
-                        Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att[att.Length - 1].angleX, att[att.Length - 1].angleY, att[att.Length - 1].heading);
+                        Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
 
                         // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
                         // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
                         // to get Scale, Rotate and Translate effect on the actual data.
 
                         ModelMatrix[0] = mat4.identity();
-                        ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
+                        ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+                        //ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
+                        ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
                         // Pitch = rotate about Z axes
-                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].angleX), new vec3(0f, 0f, 1f));
+                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.angleX), new vec3(0f, 0f, 1f));
                         // Roll = rotate about X axes
-                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].angleY), new vec3(1f, 0f, 0f));
+                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.angleY), new vec3(1f, 0f, 0f));
                         // Yaw = rotate about Y axis
-                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att[att.Length - 1].heading + _modelYAxixRotFactor), new vec3(0f, 1f, 0f));
+                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.heading), new vec3(0f, 1f, 0f));
                         //  Create a model matrix to make the model a little bigger.
                         ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
 
-                        normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
+                        
                         //normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
                         // ModelMatrix[0] = glm.scale(new mat4(1.0f), new vec3(4f));
@@ -452,7 +465,7 @@ namespace IDALabOnWheels
                 modelMatrix = glm.scale(new mat4(1.0f), new vec3(0.6f));
                 modelMatrix = glm.rotate(modelMatrix, D2R(rotation2), new vec3(.5f, .5f, 0));
             }
-
+            normalMatrix = myGLM.transpose(glm.inverse(ViewMatrix[0]));
             //normalMatrix = glm.inverse(modelMatrix);
            // normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
@@ -912,15 +925,16 @@ namespace IDALabOnWheels
             //normalMatrix = mat4.identity();
             //viewMatrix = glm.lookAt(new vec3(0f, 0f, 0f), new vec3(0f, 0f, 100f), new vec3(0.0f, 1.0f, 0.0f));
             SetMatrices(0);
+            //normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
             shaderProgram.Bind(GL);
             shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", ViewMatrix[0].to_array());
             shaderProgram.SetUniformMatrix4(GL, "modelMatrix", ModelMatrix[0].to_array());
             shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
 
             GL.Uniform3(Uniforms.Instance.SunlightColor, 1f,1f,1f);
-            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, .8f);
-            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, -1f, 0f);
+            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, .55f);
+            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, 0f, -1f);
 
             ObjModel.RenderObj(GL);
 
@@ -953,7 +967,7 @@ namespace IDALabOnWheels
             rotation += 1f;
             float lx = (float)Math.Sin(D2R(rotation));
             float lz = (float)-Math.Cos(D2R(rotation));
-
+            //ViewMatrix[1] = glm.rotate(mat4.identity(), D2R(rotation), new vec3(0f, 1f, 0f));
             if (MainVM.RotateWorld)
             {
                 Attitude att = null;
@@ -969,14 +983,16 @@ namespace IDALabOnWheels
                         // to get Scale, Rotate and Translate effect on the actual data.
 
                         ModelMatrix[1] = mat4.identity();
+                        ViewMatrix[1] = mat4.identity();
                         // Pitch = rotate about Z axes
-                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.angleX), new vec3(0f, 0f, 1f));
+                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleX), new vec3(0f, 0f, 1f));
                         // Roll = rotate about X axes
-                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.angleY), new vec3(1f, 0f, 0f));
+                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleY), new vec3(1f, 0f, 0f));
                         // Yaw = rotate about Y axis
-                        ModelMatrix[1] = glm.rotate(ModelMatrix[1], D2R(att.heading), new vec3(0f, 1f, 0f));
+                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.heading), new vec3(0f, 1f, 0f));
                     }
             }
+            normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[1]));
            // ModelMatrix[1] = mat4.identity();
            // ModelMatrix[1] = glm.translate(ModelMatrix[1], new vec3(0f, 0f, 0.1f));
 
@@ -1014,9 +1030,12 @@ namespace IDALabOnWheels
 
             shaderProgram.Bind(GL);
             shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", ViewMatrix[1].to_array());
             shaderProgram.SetUniformMatrix4(GL, "modelMatrix", ModelMatrix[1].to_array());
             shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+            GL.Uniform3(Uniforms.Instance.SunlightColor, 1f, 1f, 1f);
+            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, 1f);
+            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, -1f, 0f);
 
             skyBox.renderSkybox(GL, shaderProgram);
 

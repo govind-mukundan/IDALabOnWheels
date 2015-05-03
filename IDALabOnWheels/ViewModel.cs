@@ -70,7 +70,7 @@ namespace IDALabOnWheels
             ModeBluetooth = true; // also sets up default model as E100LP
             Lead1 = true;
             StartStopIsEnabled = false;
-            rotateWorld = true;
+            rotateWorld = false;
             NotchON = true;
         }
 

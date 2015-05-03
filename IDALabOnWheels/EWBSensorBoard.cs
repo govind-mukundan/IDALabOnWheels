@@ -97,6 +97,14 @@ namespace IDALabOnWheels
         public float angleY;
         public float heading;
 
+
+        public Attitude()
+        {
+            this.angleX = 0f;
+            this.angleY = 0f;
+            this.heading = 0f;
+        }
+
         public Attitude(float x, float y, float z)
         {
             this.angleX = x;
@@ -223,7 +231,7 @@ namespace IDALabOnWheels
         public Attitude GetAverageAttitude()
         {
             Attitude[] att = null;
-            Attitude avg = null;
+            Attitude avg = new Attitude();
 
             att = GetAttitude();
             if (att == null) return (null);

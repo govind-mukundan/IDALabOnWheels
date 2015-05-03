@@ -30,7 +30,14 @@ namespace IDALabOnWheels
         TextureManager _texManager;
         int _numMeshes;
         Assimp.Scene model;
+        float MinX = 100000f;
+        float MaxX = 0;
+        float MinY = 100000f;
+        float MaxY = 0;
+        float MinZ = 100000f;
+        float MaxZ = 0;
 
+        public vec3 Centroid { get { return new vec3((MinX + MaxX) / 2, (MinY + MaxY) / 2, (MinZ + MaxZ)/2); } }
         MeshVertexPointers[] _meshPointer; //
 
         // Use a single color mapped into a texture for objects that don't come with a texture map
@@ -94,6 +101,7 @@ namespace IDALabOnWheels
                     {
                         Vector3D Vtemp = model.Meshes[j].HasVertices ? model.Meshes[j].Vertices[model.Meshes[j].Faces[k].Indices[q]] : new Vector3D(); // Find the vertex for that index
                         vObjVertices[i] = new vec3(Vtemp.X, Vtemp.Y, Vtemp.Z);
+                        FindMaxMin(Vtemp);
 
                        Vector3D Ttemp = model.Meshes[j].HasTextureCoords(0) ? model.Meshes[j].TextureCoordinateChannels[0][model.Meshes[j].Faces[k].Indices[q]] : new Vector3D(); // Find the texture coordinates
                        vObjTextures[i] = new vec2(Ttemp.X, Ttemp.Y);
@@ -103,6 +111,7 @@ namespace IDALabOnWheels
 
                        vColor[i] = GL.Color(Color.Red);
                     }
+
                 }
                 _meshPointer[j].End = i - 1;
             }
@@ -161,6 +170,23 @@ namespace IDALabOnWheels
 
             #endregion
 
+        }
+
+        void FindMaxMin(Vector3D data)
+        {
+            if (MinX > data.X)
+                MinX = data.X;
+            if (MinY > data.Y)
+                MinY = data.Y;
+            if (MinZ > data.Z)
+                MinZ = data.Z;
+
+            if (MaxX < data.X)
+                MaxX = data.X;
+            if (MaxY < data.Y)
+                MaxY = data.Y;
+            if (MaxZ < data.Z)
+                MaxZ = data.Z;
         }
 
         // Render all the meshes. We need to do this because each mesh may need to be bound to a different texture element
