@@ -80,6 +80,7 @@ namespace IDALabOnWheels
         mat4[] ViewMatrix;
         float _modelScaleFactor; // A scaling factor that depends on the obj model being loaded. TODO: Size the model automatically by finding the max/min coordinates
         float _modelYAxixRotFactor; // similar roation
+        float _cameraZxZoomFactor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
@@ -371,6 +372,7 @@ namespace IDALabOnWheels
 
         void InitMatrices()
         {
+            _cameraZxZoomFactor = -3f;
             //  Create a model matrix to make the model a little bigger.
             ModelMatrix[1] = mat4.identity();
             ModelMatrix[0] = mat4.identity();
@@ -382,7 +384,7 @@ namespace IDALabOnWheels
            // normalMatrix = myGLM.transpose(new mat4(new vec4(1f, 2f, 3f, 4f), new vec4(5f, 6f, 7f, 8f), new vec4(9f, 10f, 11f, 12f), new vec4(13f, 14f, 15f, 16f)));
             normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
 
-            ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+            ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
             ViewMatrix[1] = mat4.identity();
         }
 
@@ -409,12 +411,14 @@ namespace IDALabOnWheels
 
                 //  Nudge the rotation.
                 rotation += 1f;
-              //  ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-              //  ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+                ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
                 
                 if (!MainVM.RotateWorld)
                 {
                     Attitude att = null;
+                                            
+                     //   ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
 
                     if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
 
@@ -427,7 +431,6 @@ namespace IDALabOnWheels
                         // to get Scale, Rotate and Translate effect on the actual data.
 
                         ModelMatrix[0] = mat4.identity();
-                        ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * -3), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
                         //ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
                         ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
                         // Pitch = rotate about Z axes
@@ -936,8 +939,9 @@ namespace IDALabOnWheels
             GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, .55f);
             GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, 0f, -1f);
 
+           // GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
             ObjModel.RenderObj(GL);
-
+            //GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_FILL);
             //modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
             //shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
             //ObjModel.RenderObj(GL);
@@ -1137,6 +1141,22 @@ namespace IDALabOnWheels
             //    }
             //    Debug.WriteLine("Exit Simulation Mode!!");
             //}
+        }
+
+        bool _debug = true;
+        float _sensitivity = 0.25f;
+        private void MouseWheelHandler(object sender, MouseWheelEventArgs args)
+        {
+            if (args.Delta > 0) // Delta is +ve when the mouse wheel is rotated away from user (zoom-out)
+            {
+                Debug.WriteIf(_debug, "+ve");
+                _cameraZxZoomFactor -= _sensitivity;
+            }
+            else
+            {
+                Debug.WriteIf(_debug, "-ve"); // Delta is +ve when the mouse wheel is rotated towards user (zoom-in)
+                _cameraZxZoomFactor += _sensitivity;
+            }
         }
     }
 }
