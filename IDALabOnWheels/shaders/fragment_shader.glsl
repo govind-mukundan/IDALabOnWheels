@@ -33,8 +33,8 @@ main()
 		else if(fDiffuseIntensity < 0.75) toon = 0.5;
 		else toon = 0.75;
 
-   outputColor = vTexColor*vec4(sunLight.vColor*(sunLight.fAmbientIntensity + toon), 1.0);
-  // outputColor = vTexColor*vec4(sunLight.vColor*(sunLight.fAmbientIntensity + (fDiffuseIntensity) ), 1.0);
+   //outputColor = vTexColor*vec4(sunLight.vColor*(sunLight.fAmbientIntensity + toon), 1.0);
+  outputColor = vTexColor*vec4(sunLight.vColor*(sunLight.fAmbientIntensity + (fDiffuseIntensity) ), 1.0);
 
 	//gl_FragColor = texture2D(uSampler, fTextureCoord);
 

@@ -31,7 +31,7 @@ namespace IDALabOnWheels
         float C_BOX_END = 500f;
 
         // string a_sFront, string a_sBack, string a_sLeft, string a_sRight, string a_sTop, string a_sBottom
-        public void loadSkybox(OpenGL GL, string[] texPath)
+        public void loadSkybox(OpenGL GL, string[] texPath, GShaderProgram shader)
         {
 
             // default texture:
@@ -110,24 +110,24 @@ namespace IDALabOnWheels
             skyVAO.Create(GL);
             skyVAO.Bind(GL);
 
-            VertexBuffer[] skyVBO = new VertexBuffer[VertexAttributes.Instance.C_NUM_ATTRIB];
+            VertexBuffer[] skyVBO = new VertexBuffer[3];
 
             skyVBO[0] = new VertexBuffer();
             skyVBO[0].Create(GL);
             skyVBO[0].Bind(GL);
-            skyVBO[0].SetData(GL, VertexAttributes.Instance.AttrbPosition, vSkyBoxVertices, false, 3);
+            skyVBO[0].SetData(GL, (uint)shader.GetAttributeID(GL, "vPosition"), vSkyBoxVertices, false, 3);
 
             //  Texture
             skyVBO[1] = new VertexBuffer();
             skyVBO[1].Create(GL);
             skyVBO[1].Bind(GL);
-            skyVBO[1].SetData(GL, VertexAttributes.Instance.AttrbTexture, vSkyBoxTexCoords, false, 2);
+            skyVBO[1].SetData(GL, (uint)shader.GetAttributeID(GL, "vTextureCoord"), vSkyBoxTexCoords, false, 2);
 
             //  Normals
             skyVBO[2] = new VertexBuffer();
             skyVBO[2].Create(GL);
             skyVBO[2].Bind(GL);
-            skyVBO[2].SetData(GL, VertexAttributes.Instance.AttrbSurfaceNormal, vSkyBoxNormals, false, 3);
+            skyVBO[2].SetData(GL, (uint)shader.GetAttributeID(GL, "vSurfaceNormal"), vSkyBoxNormals, false, 3);
 
             //skyVBO[3] = new VertexBuffer();
             //skyVBO[3].Create(GL);
@@ -140,7 +140,7 @@ namespace IDALabOnWheels
         }
 
 
-        public void renderSkybox(OpenGL GL, ShaderProgram shader)
+        public void renderSkybox(OpenGL GL, GShaderProgram shader)
         {
 
             GL.DepthMask(0); // Clear depth checking so that the skybox is not clipped out by some other figure
@@ -150,7 +150,8 @@ namespace IDALabOnWheels
                 TexContainer tc = TextureManager.Instance.GetElement(TexPath[i]);
                 tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
                 GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
-                GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID);
+                shader.SetUniform(GL, "uSampler", (int)tc.ID);
+                //GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID);
 
                 GL.DrawArrays(OpenGL.GL_TRIANGLE_STRIP, i * 4, 4);
             }

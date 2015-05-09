@@ -49,7 +49,7 @@ namespace IDALabOnWheels
             _texManager = TextureManager.Instance;//new TextureManager();
         }
 
-        public void LoadObj(string path, OpenGL GL)
+        public void LoadObj(string path, OpenGL GL, GShaderProgram shader)
         {
 
             #region ASSIMP MOdel Loading
@@ -116,6 +116,7 @@ namespace IDALabOnWheels
                 _meshPointer[j].End = i - 1;
             }
 
+            #endregion
             // Now we have all the vertices and the attributes of each vertex. Next thing is to load the textures themselves
             // Usually textures are specified in a separate file (jpg/tga...) and the OBJ file just points to the name of this file for each mesh
             // So given a mesh, you can find it's "material" (texture file)
@@ -139,24 +140,24 @@ namespace IDALabOnWheels
             objVAO.Create(GL);
             objVAO.Bind(GL);
 
-            VertexBuffer[] objVBO = new VertexBuffer[VertexAttributes.Instance.C_NUM_ATTRIB];
+            VertexBuffer[] objVBO = new VertexBuffer[3];
 
             objVBO[0] = new VertexBuffer();
             objVBO[0].Create(GL);
             objVBO[0].Bind(GL);
-            objVBO[0].SetData(GL, VertexAttributes.Instance.AttrbPosition, vObjVertices, false, 3);
+            objVBO[0].SetData(GL, (uint)shader.GetAttributeID(GL,"vPosition"), vObjVertices, false, 3);
 
             //  Texture
             objVBO[1] = new VertexBuffer();
             objVBO[1].Create(GL);
             objVBO[1].Bind(GL);
-            objVBO[1].SetData(GL, VertexAttributes.Instance.AttrbTexture, vObjTextures, false, 2);
+            objVBO[1].SetData(GL, (uint)shader.GetAttributeID(GL, "vTextureCoord"), vObjTextures, false, 2);
 
             //  Normals
             objVBO[2] = new VertexBuffer();
             objVBO[2].Create(GL);
             objVBO[2].Bind(GL);
-            objVBO[2].SetData(GL, VertexAttributes.Instance.AttrbSurfaceNormal, vObjNormals, false, 3);
+            objVBO[2].SetData(GL, (uint)shader.GetAttributeID(GL, "vSurfaceNormal"), vObjNormals, false, 3);
 
             //objVBO[3] = new VertexBuffer();
             //objVBO[3].Create(GL);
@@ -168,7 +169,7 @@ namespace IDALabOnWheels
             //End of example
             importer.Dispose();
 
-            #endregion
+            
 
         }
 
@@ -190,7 +191,7 @@ namespace IDALabOnWheels
         }
 
         // Render all the meshes. We need to do this because each mesh may need to be bound to a different texture element
-        public void RenderObj(OpenGL GL){
+        public void RenderObj(OpenGL GL, GShaderProgram sp){
 
             objVAO.Bind(GL);
 
@@ -203,7 +204,8 @@ namespace IDALabOnWheels
                     tc = TextureManager.Instance.GetElement(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath);
                     tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
                     GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
-                    GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
+                   // GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
+                    sp.SetUniform(GL, "uSampler", tc.ID);
 
                 }
                 else
@@ -212,7 +214,8 @@ namespace IDALabOnWheels
                     tc = TextureManager.Instance.GetElement(C_DUMMY_TEXTURE);
                     tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
                     GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
-                    GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
+                   // GL.Uniform1(Uniforms.Instance.Sampler, (int)tc.ID); // it's very important that the datatype matches the signature. If you dont have the cast there, the texture wont load!
+                    sp.SetUniform(GL, "uSampler", tc.ID);
 
                 }
                 GL.DrawArrays(OpenGL.GL_TRIANGLES, /* Start Index in the buffer */ _meshPointer[i].Start

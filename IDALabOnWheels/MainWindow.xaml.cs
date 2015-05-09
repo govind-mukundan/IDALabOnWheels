@@ -33,7 +33,7 @@ namespace IDALabOnWheels
         VertexBufferArray vertexBufferArray;
 
         //  The shader program for our vertex and fragment shader.
-        private ShaderProgram shaderProgram;
+        private GShaderProgram shaderProgram;
         ShaderProgram lightingShader;
         string[] vertexShaderSource;
         string[] fragmentShaderSource;
@@ -189,10 +189,6 @@ namespace IDALabOnWheels
 
         }
 
-        Dictionary<string, Texture> TextureList = new Dictionary<string, Texture>();
-        Bitmap TexBitmaps;
-        Texture ObjTextures;
-
         /// <summary>
         /// Handles the OpenGLInitialized event of the openGLControl1 control.
         /// </summary>
@@ -234,137 +230,22 @@ namespace IDALabOnWheels
             //  Create the shader program.
              vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
              fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
-            shaderProgram = new ShaderProgram();
+             shaderProgram = new GShaderProgram();
             shaderProgram.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
             attribute_vpos = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vTextureCoord");
             attribute_vSurfNormal = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vSurfaceNormal");
-            Uniforms.Instance.Sampler = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "uSampler");
-            Uniforms.Instance.SunlightColor = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.vColor");
-            Uniforms.Instance.SunlightAmbientIntensity = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.fAmbientIntensity");
-            Uniforms.Instance.SunlightDirection = gl.GetUniformLocation(shaderProgram.ShaderProgramObject, "sunLight.vDirection");
-
-            VertexAttributes.Instance.AttrbPosition = attribute_vpos;
-            VertexAttributes.Instance.AttrbColor = attribute_vcol;
-            VertexAttributes.Instance.AttrbSurfaceNormal = attribute_vSurfNormal;
-            VertexAttributes.Instance.AttrbTexture = attribute_vtexture;
             shaderProgram.AssertValid(gl);
 
             
-            InitializeFixedBufferContents();
-            //poly = ObjFileReader.ReadFile("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\Simba.obj");
-
-            //xgrid = new vec3[poly.Faces.Count * 4];
-            //int i = 0;
-            //// go through all the faces of the poly and get the vertices
-            //foreach (SharpGL.SceneGraph.Face face in poly.Faces)
-            //{
-            //    foreach (Index index in face.Indices)
-            //    {
-            //        float[] temp = poly.Vertices[index.Vertex];
-            //        xgrid[i++] = new vec3(temp[0], temp[1], temp[2]);
-            //    }
-            //}
-
-            //// Add color for each of the 24 vertices defined above
-            //coldata = new vec3[xgrid.Length];
-            //for (i = 0; i < poly.Vertices.Count; i++)
-            //{
-            //    coldata[i] = gl.Color(DR.Color.Green);
-            //}
-
-            #region ASSIMP MOdel Loading
-
-            //// https://code.google.com/p/assimp-net/wiki/GettingStarted
-            ////Create a new importer
-            //AssimpContext importer = new AssimpContext();
-
-            ////This is how we add a configuration (each config is its own class)
-            //NormalSmoothingAngleConfig config = new NormalSmoothingAngleConfig(66.0f);
-            //importer.SetConfig(config);
-
-            ////This is how we add a logging callback 
-            //LogStream logstream = new LogStream(delegate(String msg, String userData)
-            //{
-            //    Console.WriteLine(msg);
-            //});
-            //logstream.Attach();
-
-            ////Import the model. All configs are set. The model
-            ////is imported, loaded into managed memory. Then the unmanaged memory is released, and everything is reset.
-            //Assimp.Scene model = importer.ImportFile("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\Wolf\\Wolf.obj", PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.GenerateSmoothNormals | PostProcessSteps.GenerateUVCoords);
-
-            ////TODO: Load the model data into your own structures
-            //// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=23
-            //// find the total number of faces in the object * 3 for number of vertices
-            //// Assume that a face is always a triangle. OBJ files may contain Quad faces, but ASSIMP will convert them into triangles to make our life easier
-            //int faces = 0;
-            //for (int j = 0; j < model.MeshCount; j++) // for each mesh
-            //{
-            //    faces += model.Meshes[j].FaceCount; // find the total number of faces in the entire figure (= sum of faces for each mesh)
-            //}
-            //xgrid = new vec3[faces * 3];
-            //// go through all the faces of the poly and get the vertices
-            //int i = 0;
-            //for (int j = 0; j < model.MeshCount; j++) // for each mesh
-            //{
-            //    for (int k = 0; k < model.Meshes[j].FaceCount; k++) // for each face in a mesh
-            //    {
-            //        for (int q = 0; q < model.Meshes[j].Faces[k].IndexCount; q++) // for each index in a face
-            //        {
-            //            Vector3D temp = model.Meshes[j].Vertices[model.Meshes[j].Faces[k].Indices[q]];
-            //            xgrid[i++] = new vec3(temp.X, temp.Y, temp.Z);
-
-            //        }
-            //    }
-            //    var texC = model.Meshes[j].HasTextureCoords(0);
-            //}
-
-            //// Load the materials/textures used for the OBJ
-            //int materials = 0;
-            //for (int j = 0; j < model.MaterialCount; j++) // for each material in the OBJ
-            //{
-            //    TextureSlot tSlot = new TextureSlot();
-            //    if (model.Materials[j].GetMaterialTexture(TextureType.Diffuse, 0, out tSlot))
-            //    {
-            //        // Got a texture, check if it's already there in the dictionary. If not, add it
-            //        gl.Enable(OpenGL.GL_TEXTURE_2D);
-            //        if (!TextureList.ContainsKey(tSlot.FilePath))
-            //        {
-            //            Debug.Write("Found New Texture!");
-            //            TexBitmaps = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\"+ tSlot.FilePath.Split('.')[0] + ".png");
-            //            ObjTextures = new Texture();
-            //            gl.ActiveTexture(OpenGL.GL_TEXTURE0 + 0);
-            //            ObjTextures.Create(gl, TexBitmaps);
-            //            ObjTextures.Bind(gl);
-            //            TextureList.Add(tSlot.FilePath, ObjTextures);
-            //        }
-
-            //    }
-            //}
-
-
-            //// Add color for each of the vertices defined above
-            //coldata = new vec3[xgrid.Length];
-            //for (i = 0; i < xgrid.Length; i++)
-            //{
-            //    coldata[i] = gl.Color(DR.Color.Green);
-            //}
-
-            ////End of example
-            //importer.Dispose();
-
-            //// To render call --> DrawObject(gl);
-
-            #endregion
-
+            InitializeFixedBufferContents();            
             skyBox = new SkyBox();
-            skyBox.loadSkybox(gl, null);
+            skyBox.loadSkybox(gl, null, shaderProgram);
 
             //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl); _modelScaleFactor = 3f;
-            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
-            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
+            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, shaderProgram); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
+            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
             InitMatrices();
         }
 
@@ -930,17 +811,16 @@ namespace IDALabOnWheels
             SetMatrices(0);
             //normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
             shaderProgram.Bind(GL);
-            shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", ViewMatrix[0].to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", ModelMatrix[0].to_array());
-            shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
-
-            GL.Uniform3(Uniforms.Instance.SunlightColor, 1f,1f,1f);
-            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, .55f);
-            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, 0f, -1f);
+            shaderProgram.SetUniform(GL, "projectionMatrix", projectionMatrix);
+            shaderProgram.SetUniform(GL, "viewMatrix", ViewMatrix[0]);
+            shaderProgram.SetUniform(GL, "modelMatrix", ModelMatrix[0]);
+            shaderProgram.SetUniform(GL, "normalMatrix", normalMatrix);
+            shaderProgram.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            shaderProgram.SetUniform(GL, "sunLight.fAmbientIntensity", .4f);
+            shaderProgram.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
 
            // GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
-            ObjModel.RenderObj(GL);
+            ObjModel.RenderObj(GL, shaderProgram);
             //GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_FILL);
             //modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
             //shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
@@ -1033,16 +913,16 @@ namespace IDALabOnWheels
             //modelMatrix = glm.rotate(modelMatrix, D2R(rotation), new vec3(0f, 0f, 1f));
 
             shaderProgram.Bind(GL);
-            shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", ViewMatrix[1].to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", ModelMatrix[1].to_array());
-            shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
-            GL.Uniform3(Uniforms.Instance.SunlightColor, 1f, 1f, 1f);
-            GL.Uniform1(Uniforms.Instance.SunlightAmbientIntensity, 1f);
-            GL.Uniform3(Uniforms.Instance.SunlightDirection, 0f, -1f, 0f);
+            shaderProgram.SetUniform(GL, "projectionMatrix", projectionMatrix);
+            shaderProgram.SetUniform(GL, "viewMatrix", ViewMatrix[1]);
+            shaderProgram.SetUniform(GL, "modelMatrix", ModelMatrix[1]);
+            shaderProgram.SetUniform(GL, "normalMatrix", normalMatrix);
+            shaderProgram.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            shaderProgram.SetUniform(GL, "sunLight.fAmbientIntensity", 1f);
+            shaderProgram.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
 
             skyBox.renderSkybox(GL, shaderProgram);
-
+            shaderProgram.Unbind(GL);
 
         }
 

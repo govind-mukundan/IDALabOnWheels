@@ -9,25 +9,25 @@ namespace IDALabOnWheels
     public class Uniforms
     {
 
-                private static readonly Uniforms instance = new Uniforms();
+    //            private static readonly Uniforms instance = new Uniforms();
 
-                private Uniforms() { }
+    //            private Uniforms() { }
 
-                public static Uniforms Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    return instance;
-                }
-                return instance;
-            }
-        }
+    //            public static Uniforms Instance
+    //    {
+    //        get
+    //        {
+    //            if (instance == null)
+    //            {
+    //                return instance;
+    //            }
+    //            return instance;
+    //        }
+    //    }
 
-        public int Sampler;
-        public int SunlightColor;
-        public int SunlightAmbientIntensity;
-        public int SunlightDirection;
+    //    public int Sampler;
+    //    public int SunlightColor;
+    //    public int SunlightAmbientIntensity;
+    //    public int SunlightDirection;
     }
 }
