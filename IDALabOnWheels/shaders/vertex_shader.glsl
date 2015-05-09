@@ -16,6 +16,8 @@ uniform mat4 normalMatrix; // The appropriately normalized normal matrix
 varying highp vec3 vLighting;
 smooth out vec3 vNormal; 
  
+ out vec3 Position;
+
 void
 main()
 {
@@ -27,16 +29,18 @@ main()
 
 	   vec4 vRes = normalMatrix*vec4(vSurfaceNormal, 0.0);
    vNormal = vRes.xyz; 
+   Position = vec3( viewMatrix * modelMatrix * vec4(vPosition,1.0) );
+
 
 	        // Apply lighting effect
         
-        highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
+       /* highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
         highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.75);
         highp vec3 directionalVector = vec3(0.85, 0.8, 0.75);
         
         highp vec4 transformedNormal = normalMatrix * vec4(vSurfaceNormal, 1.0);
         
         highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-        vLighting = ambientLight + (directionalLightColor * directional);
+        vLighting = ambientLight + (directionalLightColor * directional); */
 
 }

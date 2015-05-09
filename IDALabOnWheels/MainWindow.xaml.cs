@@ -33,8 +33,8 @@ namespace IDALabOnWheels
         VertexBufferArray vertexBufferArray;
 
         //  The shader program for our vertex and fragment shader.
-        private GShaderProgram shaderProgram;
-        ShaderProgram lightingShader;
+        private GShaderProgram textureShader;
+        GShaderProgram colorShader;
         string[] vertexShaderSource;
         string[] fragmentShaderSource;
         //  The projection, view and model matrices.
@@ -230,22 +230,22 @@ namespace IDALabOnWheels
             //  Create the shader program.
              vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
              fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
-             shaderProgram = new GShaderProgram();
-            shaderProgram.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
-            attribute_vpos = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vPosition");
-            attribute_vcol = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vColor");
-            attribute_vtexture = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vTextureCoord");
-            attribute_vSurfNormal = (uint)gl.GetAttribLocation(shaderProgram.ShaderProgramObject, "vSurfaceNormal");
-            shaderProgram.AssertValid(gl);
+             textureShader = new GShaderProgram();
+            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
+            attribute_vpos = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vPosition");
+            attribute_vcol = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vColor");
+            attribute_vtexture = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vTextureCoord");
+            attribute_vSurfNormal = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vSurfaceNormal");
+            textureShader.AssertValid(gl);
 
             
             InitializeFixedBufferContents();            
             skyBox = new SkyBox();
-            skyBox.loadSkybox(gl, null, shaderProgram);
+            skyBox.loadSkybox(gl, null, textureShader);
 
-            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl); _modelScaleFactor = 3f;
-            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, shaderProgram); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
-            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
+           // ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl, textureShader); _modelScaleFactor = 1f;
+           //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
+            ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
             InitMatrices();
         }
 
@@ -292,9 +292,13 @@ namespace IDALabOnWheels
 
                 //  Nudge the rotation.
                 rotation += 1f;
-                ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-                ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
-                
+                ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f,  ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+               // ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                ModelMatrix[0] = mat4.identity();
+               // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(ObjModel.Centroid.x, ObjModel.Centroid.y, ObjModel.Centroid.z));
+                ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+                ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
                 if (!MainVM.RotateWorld)
                 {
                     Attitude att = null;
@@ -349,7 +353,7 @@ namespace IDALabOnWheels
                 modelMatrix = glm.scale(new mat4(1.0f), new vec3(0.6f));
                 modelMatrix = glm.rotate(modelMatrix, D2R(rotation2), new vec3(.5f, .5f, 0));
             }
-            normalMatrix = myGLM.transpose(glm.inverse(ViewMatrix[0]));
+            normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
             //normalMatrix = glm.inverse(modelMatrix);
            // normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
@@ -397,11 +401,11 @@ namespace IDALabOnWheels
             vertexBufferArray.Unbind(GL);
 
             //  Bind the shader, set the matrices.
-            shaderProgram.Bind(GL);
-            shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+            textureShader.Bind(GL);
+            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
 
             //  Bind the out vertex array.
             vertexBufferArray.Bind(GL);
@@ -421,7 +425,7 @@ namespace IDALabOnWheels
 
             //  Unbind our vertex array and shader.
             vertexBufferArray.Unbind(GL);
-            shaderProgram.Unbind(GL);
+            textureShader.Unbind(GL);
 
         }
 
@@ -606,11 +610,11 @@ namespace IDALabOnWheels
             vertexBufferArray.Unbind(GL);
 
             //  Bind the shader, set the matrices.
-            shaderProgram.Bind(GL);
-            shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+            textureShader.Bind(GL);
+            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
 
             //  Bind the out vertex array.
             vertexBufferArray.Bind(GL);
@@ -631,7 +635,7 @@ namespace IDALabOnWheels
 
             //  Unbind our vertex array and shader.
             vertexBufferArray.Unbind(GL);
-            shaderProgram.Unbind(GL);
+            textureShader.Unbind(GL);
         }
 
         Texture _texture;
@@ -671,10 +675,10 @@ namespace IDALabOnWheels
             vertexBufferArray.Unbind(GL);
 
             //  Bind the shader, set the matrices.
-            shaderProgram.Bind(GL);
-            shaderProgram.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            textureShader.Bind(GL);
+            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
 
             //  Bind the out vertex array.
             vertexBufferArray.Bind(GL);
@@ -694,7 +698,7 @@ namespace IDALabOnWheels
 
             //  Unbind our vertex array and shader.
             vertexBufferArray.Unbind(GL);
-            shaderProgram.Unbind(GL);
+            textureShader.Unbind(GL);
         }
 
         void CreateAndDrawGrid(OpenGL GL)
@@ -752,10 +756,10 @@ namespace IDALabOnWheels
             vertexBufferArray.Unbind(GL);
 
             //  Bind the shader, set the matrices.
-            shaderProgram.Bind(GL);
+            textureShader.Bind(GL);
             //shaderProgram.SetUniformMatrix4(gl, "projectionMatrix", projectionMatrix.to_array());
             //shaderProgram.SetUniformMatrix4(gl, "viewMatrix", viewMatrix.to_array());
-            shaderProgram.SetUniformMatrix4(GL, "modelview", modelMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelview", modelMatrix.to_array());
 
             //  Bind the out vertex array.
             vertexBufferArray.Bind(GL);
@@ -764,7 +768,7 @@ namespace IDALabOnWheels
 
             //  Unbind our vertex array and shader.
             vertexBufferArray.Unbind(GL);
-            shaderProgram.Unbind(GL);
+            textureShader.Unbind(GL);
 
             // --------------- Implementation WITH VERTEX ARRAY OBJECTS END --------------------
 
@@ -810,22 +814,26 @@ namespace IDALabOnWheels
             //viewMatrix = glm.lookAt(new vec3(0f, 0f, 0f), new vec3(0f, 0f, 100f), new vec3(0.0f, 1.0f, 0.0f));
             SetMatrices(0);
             //normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
-            shaderProgram.Bind(GL);
-            shaderProgram.SetUniform(GL, "projectionMatrix", projectionMatrix);
-            shaderProgram.SetUniform(GL, "viewMatrix", ViewMatrix[0]);
-            shaderProgram.SetUniform(GL, "modelMatrix", ModelMatrix[0]);
-            shaderProgram.SetUniform(GL, "normalMatrix", normalMatrix);
-            shaderProgram.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
-            shaderProgram.SetUniform(GL, "sunLight.fAmbientIntensity", .4f);
-            shaderProgram.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
+            textureShader.Bind(GL);
+            textureShader.SetUniform(GL, "projectionMatrix", projectionMatrix);
+            textureShader.SetUniform(GL, "viewMatrix", ViewMatrix[0]);
+            textureShader.SetUniform(GL, "modelMatrix", ModelMatrix[0]);
+            textureShader.SetUniform(GL, "normalMatrix", normalMatrix);
+            textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.1f, .1f, .1f));
+            textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, 1f));
+            textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 1f));
+            textureShader.SetUniform(GL, "specLight.Ks", new vec3(.9f, .9f, .9f));
+            textureShader.SetUniform(GL, "specLight.Shininess", 50f);
 
            // GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
-            ObjModel.RenderObj(GL, shaderProgram);
+            ObjModel.RenderObj(GL, textureShader);
             //GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_FILL);
             //modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
             //shaderProgram.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
             //ObjModel.RenderObj(GL);
-            shaderProgram.Unbind(GL);
+            textureShader.Unbind(GL);
         }
 
         float theta = -180;
@@ -912,17 +920,19 @@ namespace IDALabOnWheels
             //modelMatrix = glm.scale(new mat4(1.0f), new vec3(1f));
             //modelMatrix = glm.rotate(modelMatrix, D2R(rotation), new vec3(0f, 0f, 1f));
 
-            shaderProgram.Bind(GL);
-            shaderProgram.SetUniform(GL, "projectionMatrix", projectionMatrix);
-            shaderProgram.SetUniform(GL, "viewMatrix", ViewMatrix[1]);
-            shaderProgram.SetUniform(GL, "modelMatrix", ModelMatrix[1]);
-            shaderProgram.SetUniform(GL, "normalMatrix", normalMatrix);
-            shaderProgram.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
-            shaderProgram.SetUniform(GL, "sunLight.fAmbientIntensity", 1f);
-            shaderProgram.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
+            textureShader.Bind(GL);
+            textureShader.SetUniform(GL, "projectionMatrix", projectionMatrix);
+            textureShader.SetUniform(GL, "viewMatrix", ViewMatrix[1]);
+            textureShader.SetUniform(GL, "modelMatrix", ModelMatrix[1]);
+            textureShader.SetUniform(GL, "normalMatrix", normalMatrix);
+            textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.8f, .8f, .8f));
+            textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
+            textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f)); // disable specular light for the skybox
 
-            skyBox.renderSkybox(GL, shaderProgram);
-            shaderProgram.Unbind(GL);
+            skyBox.renderSkybox(GL, textureShader);
+            textureShader.Unbind(GL);
 
         }
 
