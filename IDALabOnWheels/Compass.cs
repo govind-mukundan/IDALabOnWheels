@@ -100,7 +100,11 @@ namespace IDALabOnWheels
             tc.Tex.Bind(GL); // Bind to the current texture on texture unit 0
             GL.ActiveTexture(OpenGL.GL_TEXTURE0 + (uint)tc.ID);
             shader.SetUniform(GL, "uSampler", tc.ID);
+            // Turn ON aplha blending for the arrow so the empty background is ignored
+            GL.Enable(OpenGL.GL_BLEND);
+            GL.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
             GL.DrawArrays(OpenGL.GL_TRIANGLE_FAN, 0, _numSegments);
+            GL.Disable(OpenGL.GL_BLEND);
 
             compassVAO.Unbind(GL);
 

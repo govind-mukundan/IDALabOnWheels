@@ -113,6 +113,14 @@ namespace IDALabOnWheels
             {
                 //UpdateModelParams(_currentModel);
             }
+            if (e.PropertyName == "StaticActivity")
+            {
+                //UpdateModelParams(_currentModel);
+            }
+            if (e.PropertyName == "DynamicActivity")
+            {
+                //UpdateModelParams(_currentModel);
+            }
 
         }
 
@@ -738,7 +746,7 @@ namespace IDALabOnWheels
             model = mat4.identity();
             model = glm.translate(model, new vec3(7, -3, -6));
             model = glm.rotate(model, D2R(rotation), new vec3(0f, 0f, 1f));
-            model = glm.scale(model, new vec3(.2f, .8f, 1f));
+            model = glm.scale(model, new vec3(.1f, .8f, 1f));
 
             textureShader.SetUniform(GL, "projectionMatrix", glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f));
             textureShader.SetUniform(GL, "viewMatrix", mat4.identity()); // glm.lookAt(new vec3(0f, 0f, -6f), new vec3(0f, 0f, 0f), new vec3(0.0f, 1.0f, 0.0f))
@@ -958,7 +966,7 @@ namespace IDALabOnWheels
             {
                 MainVM.StartStopIsEnabled = true;
                 Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
-                MainVM.BTConnectIsEnabled = false;
+               
             }
 
         }
@@ -973,6 +981,7 @@ namespace IDALabOnWheels
                 _enableStop = true;
                 btnStartStop.Content = "Stop";
                 EWBBoard.Start();
+                MainVM.ActivityIsEnabled = true;
             }
             else
             {
@@ -983,6 +992,9 @@ namespace IDALabOnWheels
 
         }
 
+        private void btnStartActivity_Click(object sender, RoutedEventArgs e)
+        {
+        }
 
         private void Window_Closed(object sender, EventArgs e)
         {

@@ -12,27 +12,39 @@ namespace IDALabOnWheels
         // Data binding to combo box - http://stackoverflow.com/questions/58743/databinding-an-enum-property-to-a-combobox-in-wpf
 
 
-        private bool modeBluetooth;
-        public bool ModeBluetooth
+        private bool staticActivity;
+        public bool StaticActivity
         {
-            get { return modeBluetooth; }
+            get { return staticActivity; }
 
             set
             {
-                modeBluetooth = value; 
-                if (modeBluetooth == true)
-                {
-                    BTPortsIsEnabled = true;
-                    BTConnectIsEnabled = true;
-                    StartStopIsEnabled = false;
-                }
-                else
-                {
-                    BTPortsIsEnabled = false;
-                    BTConnectIsEnabled = false;
+                staticActivity = value; 
+                //if (staticActivity == true)
+                //{
+                //    BTPortsIsEnabled = true;
+                //    ActivityIsEnabled = true;
+                //    StartStopIsEnabled = false;
+                //}
+                //else
+                //{
+                //    BTPortsIsEnabled = false;
+                //    ActivityIsEnabled = false;
                     
-                }
-                NotifyPropertyChanged("ModeBluetooth");
+                //}
+                NotifyPropertyChanged("StaticActivity");
+            }
+        }
+
+        private bool dynamicActivity;
+        public bool DynamicActivity
+        {
+            get { return dynamicActivity; }
+
+            set
+            {
+                dynamicActivity = value;
+                NotifyPropertyChanged("DynamicActivity");
             }
         }
 
@@ -41,8 +53,8 @@ namespace IDALabOnWheels
         private bool btPortsIsEnabled;
         public bool BTPortsIsEnabled { get { return btPortsIsEnabled; } set { btPortsIsEnabled = value; NotifyPropertyChanged("BTPortsIsEnabled"); } }
 
-        private bool btConnectIsEnabled;
-        public bool BTConnectIsEnabled { get { return btConnectIsEnabled; } set { btConnectIsEnabled = value; NotifyPropertyChanged("BTConnectIsEnabled"); } }
+        private bool activityIsEnabled;
+        public bool ActivityIsEnabled { get { return activityIsEnabled; } set { activityIsEnabled = value; NotifyPropertyChanged("ActivityIsEnabled"); } }
 
         private bool startStopIsEnabled;
         public bool StartStopIsEnabled { get { return startStopIsEnabled; } set { startStopIsEnabled = value; NotifyPropertyChanged("StartStopIsEnabled"); } }
@@ -67,9 +79,9 @@ namespace IDALabOnWheels
         /// </summary>
         public void SetupDefaultGUI()
         {
-            ModeBluetooth = true; // also sets up default model as E100LP
+            StaticActivity = true; // also sets up default model as E100LP
             Lead1 = true;
-            StartStopIsEnabled = false;
+            ActivityIsEnabled = false;
             rotateWorld = false;
             NotchON = true;
         }

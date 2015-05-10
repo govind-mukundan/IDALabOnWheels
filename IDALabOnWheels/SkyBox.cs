@@ -37,12 +37,12 @@ namespace IDALabOnWheels
             // default texture:
             TexPath = new string[6];
             Debug.Write(AppDomain.CurrentDomain.BaseDirectory);
-            //TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_ft.jpg";
-            //TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_bk.jpg";
-            //TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_lf.jpg";
-            //TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_rt.jpg";
-            //TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_up.jpg";
-            //TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_dn.jpg";
+            TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_ft.jpg";
+            TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_bk.jpg";
+            TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_lf.jpg";
+            TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_rt.jpg";
+            TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_up.jpg";
+            TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajlands1\\jajlands1_dn.jpg";
             //TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\front.jpg";
             //TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\back.jpg";
             //TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\right.jpg";
@@ -50,12 +50,12 @@ namespace IDALabOnWheels
             //TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\up.jpg";
             //TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\field\\down.jpg";
 
-            TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_ft.jpg";
-            TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_bk.jpg";
-            TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_lf.jpg";
-            TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_rt.jpg";
-            TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_up.jpg";
-            TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_dn.jpg";
+            //TexPath[0] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_ft.jpg";
+            //TexPath[1] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_bk.jpg";
+            //TexPath[2] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_lf.jpg";
+            //TexPath[3] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_rt.jpg";
+            //TexPath[4] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_up.jpg";
+            //TexPath[5] = AppDomain.CurrentDomain.BaseDirectory + "\\skyboxes\\jajsundown\\jajsundown1_dn.jpg";
 
             for (int i = 0; i < 6; i++)
             {
