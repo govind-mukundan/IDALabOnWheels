@@ -77,6 +77,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Compass.cs" />
     <Compile Include="GShaderProgram.cs" />
     <Compile Include="ManifestResourceLoader.cs" />
     <Compile Include="Utility.cs" />

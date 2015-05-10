@@ -81,6 +81,10 @@ namespace IDALabOnWheels
         float _modelScaleFactor; // A scaling factor that depends on the obj model being loaded. TODO: Size the model automatically by finding the max/min coordinates
         float _modelYAxixRotFactor; // similar roation
         float _cameraZxZoomFactor;
+        Compass _compass;
+        CompassArrow _cArrow;
+        double cWidth;
+        double cHeight;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
@@ -122,17 +126,7 @@ namespace IDALabOnWheels
             return (degree * (float)Math.PI / 180);
         }
 
-        vec3[] DrawCircle(float cx, float cy, float r, int num_segments)
-        {
-            vec3[] circle_v = new vec3[num_segments];
-            for (int ii = 0; ii < num_segments; ii++)
-            {
-                float theta = 2.0f * 3.1415926f * ii / num_segments;//get the current angle 
-                circle_v[ii].x = r * (float)Math.Cos(theta);//calculate the x component 
-                circle_v[ii].y = r * (float)Math.Sin(theta);//calculate the y component 
-            }
-            return (circle_v);
-        }
+
 
         float rotation = 0;
         /// <summary>
@@ -166,7 +160,9 @@ namespace IDALabOnWheels
 
             DrawObj(gl);
 
-
+            DrawCompass(gl);
+           // gl.DrawText(5, 500, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f, DateTime.Now.ToShortTimeString());
+           // gl.Flush();
 
             // gl.DrawText(5, 50, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f,string.Format("God is Great"));
             // gl.Flush();
@@ -246,7 +242,15 @@ namespace IDALabOnWheels
            // ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl, textureShader); _modelScaleFactor = 1f;
            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
             ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
+
+            _compass = new Compass();
+            _compass.Create(gl, AppDomain.CurrentDomain.BaseDirectory + "textures\\compass-dial.png", textureShader);
+            _cArrow = new CompassArrow();
+            _cArrow.Create(gl, AppDomain.CurrentDomain.BaseDirectory + "textures\\compass-arrow.png", textureShader);
             InitMatrices();
+            cWidth = openGLControl.ActualWidth;
+            cHeight = openGLControl.ActualHeight;
+            Debug.WriteIf(_debug, "Width = " + cWidth.ToString() + " Height = " + cHeight.ToString());
         }
 
         float rotation2 = 0;
@@ -269,17 +273,14 @@ namespace IDALabOnWheels
             ViewMatrix[1] = mat4.identity();
         }
 
-        void InitObj()
-        {
 
-        }
         void SetMatrices(int index)
         {
 
             if (index == 0)
             {
                 //  Create a perspective projection matrix.
-                projectionMatrix = glm.perspective(D2R(60), (float)Width / (float)Height, 0.01f, 100.0f);
+                projectionMatrix = glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f);
                 float aspectRatio = (float)(Width / Height);
                 float viewSize = 100f;
                 // projectionMatrix = glm.ortho(-aspectRatio * viewSize/2 , aspectRatio * viewSize/2, viewSize/2, viewSize/2, -1000, 1000);
@@ -639,67 +640,6 @@ namespace IDALabOnWheels
         }
 
         Texture _texture;
-        void CreateAndDrawCircle(OpenGL GL)
-        {
-            SetMatrices(1);
-            xgrid = DrawCircle(0f, 0f, 1f, 100);
-            coldata = new vec3[xgrid.Length];
-            for (int i = 0; i < xgrid.Length; i++)
-            {
-                coldata[i] = GL.Color(DR.Color.ForestGreen);
-            }
-            ////  Create the vertex array object.
-            vertexBufferArray = new VertexBufferArray();
-            vertexBufferArray.Create(GL);
-            vertexBufferArray.Bind(GL);
-
-            //  Create a vertex buffer for the vertex data.
-            //var indexDataBuffer = new IndexBuffer();
-            //indexDataBuffer.Create(GL);
-            //indexDataBuffer.Bind(GL);
-            //indexDataBuffer.SetData(GL, cubeVertexIndices);
-            //vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            var vertexDataBuffer = new VertexBuffer();
-            vertexDataBuffer.Create(GL);
-            vertexDataBuffer.Bind(GL);
-            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            //  Now do the same for the colour data.
-            var colourDataBuffer = new VertexBuffer();
-            colourDataBuffer.Create(GL);
-            colourDataBuffer.Bind(GL);
-            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
-
-            //  Unbind the vertex array, we've finished specifying data for it.
-            vertexBufferArray.Unbind(GL);
-
-            //  Bind the shader, set the matrices.
-            textureShader.Bind(GL);
-            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-
-            //  Bind the out vertex array.
-            vertexBufferArray.Bind(GL);
-
-            //_texture = new Texture();
-
-            //// Open a Stream and decode a PNG image
-            //GL.ActiveTexture(OpenGL.GL_TEXTURE0);
-            //Bitmap myBitmap = new Bitmap("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\1.png");
-            //_texture.Create(GL, myBitmap);
-            //_texture.Bind(GL);
-            //shaderProgram.SetUniform1(GL, "uSampler", 0);
-
-            GL.DrawArrays(OpenGL.GL_TRIANGLE_FAN, 0, 100);
-            // 6 triangle vertices in a face, 36 vertices in the whole cube
-            //GL.DrawElements(OpenGL.GL_TRIANGLES, 36, cubeVertexIndices); // Use elements to save RAM
-
-            //  Unbind our vertex array and shader.
-            vertexBufferArray.Unbind(GL);
-            textureShader.Unbind(GL);
-        }
 
         void CreateAndDrawGrid(OpenGL GL)
         {
@@ -774,7 +714,41 @@ namespace IDALabOnWheels
 
         }
 
+        void DrawCompass(OpenGL GL)
+        {
+            mat4 model = mat4.identity();
+            model = glm.translate(model, new vec3(7,-3,-6));
+            //model = glm.scale(model,new vec3(0.2f));
+            textureShader.Bind(GL);
+            textureShader.SetUniform(GL, "projectionMatrix", glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f));
+            textureShader.SetUniform(GL, "viewMatrix", mat4.identity()); // glm.lookAt(new vec3(0f, 0f, -6f), new vec3(0f, 0f, 0f), new vec3(0.0f, 1.0f, 0.0f))
+            textureShader.SetUniform(GL, "modelMatrix", model);
+            textureShader.SetUniform(GL, "normalMatrix", myGLM.transpose(glm.inverse(model)));
 
+            textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.1f, .1f, .1f));
+            textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, 1f));
+            textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f));
+            textureShader.SetUniform(GL, "specLight.Ks", new vec3(.9f, .9f, .9f));
+            textureShader.SetUniform(GL, "specLight.Shininess", 100f);
+
+            _compass.Render(GL, textureShader);
+
+            model = mat4.identity();
+            model = glm.translate(model, new vec3(7, -3, -6));
+            model = glm.rotate(model, D2R(rotation), new vec3(0f, 0f, 1f));
+            model = glm.scale(model, new vec3(.2f, .8f, 1f));
+
+            textureShader.SetUniform(GL, "projectionMatrix", glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f));
+            textureShader.SetUniform(GL, "viewMatrix", mat4.identity()); // glm.lookAt(new vec3(0f, 0f, -6f), new vec3(0f, 0f, 0f), new vec3(0.0f, 1.0f, 0.0f))
+            textureShader.SetUniform(GL, "modelMatrix", model);
+            textureShader.SetUniform(GL, "normalMatrix", myGLM.transpose(glm.inverse(model)));
+            _cArrow.Render(GL, textureShader);
+
+            textureShader.Unbind(GL);
+            
+        }
         
 
         /// <summary>
@@ -843,7 +817,7 @@ namespace IDALabOnWheels
             //SetMatrices(0);
             viewMatrix = mat4.identity();
             projectionMatrix = mat4.identity();
-            projectionMatrix = glm.perspective(D2R(60), (float)Width / (float)Height, 0.01f, 100.0f);
+            projectionMatrix = glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f);
             //projectionMatrix = glm.ortho( -100f, 100f, -100f, 100f,-100f, 100f);
             modelMatrix = mat4.identity();
             normalMatrix = mat4.identity();
@@ -926,10 +900,18 @@ namespace IDALabOnWheels
             textureShader.SetUniform(GL, "modelMatrix", ModelMatrix[1]);
             textureShader.SetUniform(GL, "normalMatrix", normalMatrix);
             textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
-            textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.8f, .8f, .8f));
+            textureShader.SetUniform(GL, "sunLight.Ka", new vec3(1f, 1f, 1f));
             textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
-            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
+            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, 1f));
             textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f)); // disable specular light for the skybox
+            textureShader.SetUniform(GL, "specLight.Ks", new vec3(1f, 1f, 1f));
+            textureShader.SetUniform(GL, "specLight.Shininess", 50f);
+
+            //textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
+            //textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.8f, .8f, .8f));
+            //textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
+            //textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
+            //textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f)); 
 
             skyBox.renderSkybox(GL, textureShader);
             textureShader.Unbind(GL);
@@ -946,6 +928,9 @@ namespace IDALabOnWheels
         {
             //  TODO: Set the projection matrix here.
 
+            cWidth = openGLControl.ActualWidth;
+            cHeight = openGLControl.ActualHeight;
+            Debug.WriteIf(_debug, "Width = " + cWidth.ToString() + " Height = " + cHeight.ToString());
             ////  Get the OpenGL object.
             //OpenGL gl = openGLControl.OpenGL;
 
@@ -1006,6 +991,24 @@ namespace IDALabOnWheels
                 EWBBoard.DoOnQuit();
 
             System.Environment.Exit(0);
+
+            //if (_serialPortAdapter != null)
+            //{
+            //    _serialPortAdapter.Close();
+            //}
+            //// release OpenGL objects
+            //if (_vao != null)
+            //{
+            //    for (int i = 0; i < _vao.Length; i++)
+            //    {
+            //        if (_vao[i] != null)
+            //            _vao[i].Delete(openGLControl.OpenGL);
+            //    }
+            //}
+            //if (shaderProgram != null)
+            //    shaderProgram.Delete(openGLControl.OpenGL);
+
+            //System.Environment.Exit(0);
         }
 
         private void cbSimulate_Click(object sender, RoutedEventArgs e)
@@ -1048,5 +1051,6 @@ namespace IDALabOnWheels
                 _cameraZxZoomFactor += _sensitivity;
             }
         }
+
     }
 }

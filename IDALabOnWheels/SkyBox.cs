@@ -159,6 +159,10 @@ namespace IDALabOnWheels
             GL.DepthMask(1);
         }
 
-        void releaseSkybox() { }
+        void releaseSkybox(OpenGL GL)
+        {
+            skyVAO.Delete(GL);
+
+        }
     }
 }
