@@ -66,6 +66,8 @@ namespace IDALabOnWheels
 
         public void Stop()
         {
+            if (_utcTimer == null) return;
+
             _utcTimer.Stop();
             _utcTimer = null;
         }

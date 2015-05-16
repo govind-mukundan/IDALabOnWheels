@@ -151,5 +151,13 @@ namespace IDALabOnWheels
             return (_textureCollection[path]);
         }
 
+        public void Release(OpenGL gl, string path){
+            if (_textureCollection.ContainsKey(path))
+            {
+                _textureCollection[path].Tex.Destroy(gl);
+                _textureCollection.Remove(path);
+            }
+
+        }
     }
 }

@@ -10,6 +10,9 @@ namespace IDALabOnWheels
     class IActivity
     {
         protected ActivityTimer _timer;
+        protected bool _running;
+        public Action NotifyPerSec;
+
         public TimeSpan ElapsedTime
         {
             get { 
@@ -21,7 +24,9 @@ namespace IDALabOnWheels
         public void Start()
         {
             _timer = new ActivityTimer();
+            _timer.NotifyPerSec = NotifyPerSec;
             _timer.Start(false, new TimeSpan(0, 0, 0));
+            _running = true;
         }
 
         public virtual bool Process()
@@ -32,6 +37,7 @@ namespace IDALabOnWheels
         public void Stop()
         {
             _timer.Stop();
+            _running = false;
         }
 
 

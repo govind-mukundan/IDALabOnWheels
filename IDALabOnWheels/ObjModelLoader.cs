@@ -226,6 +226,26 @@ namespace IDALabOnWheels
 
         }
 
+        public void Release(OpenGL gl)
+        {
+
+            for (int i = 0; i < _numMeshes; i++)
+            {
+                TextureSlot tSlot = new TextureSlot();
+                TexContainer tc;
+                if (model.Materials[model.Meshes[i].MaterialIndex].GetMaterialTexture(TextureType.Diffuse, 0, out tSlot))
+                {
+                    TextureManager.Instance.Release(gl, AppDomain.CurrentDomain.BaseDirectory + "mesh\\texture\\" + tSlot.FilePath);
+                }
+                else
+                {
+                    TextureManager.Instance.Release(gl, C_DUMMY_TEXTURE);
+                }
+
+            }
+
+            objVAO.Unbind(gl);
+        }
 
     }
 }

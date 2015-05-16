@@ -222,7 +222,16 @@ namespace IDALabOnWheels
         public void RequestAttitude()
         {
             GenericRequest(MSP_ATTITUDE);
+        }
 
+        public void RequestAccCalib()
+        {
+            GenericRequest(MSP_ACC_CALIBRATION);
+        }
+
+        public void RequestMagCalib()
+        {
+            GenericRequest(MSP_MAG_CALIBRATION);
         }
 
         public Attitude[] GetAttitude()
@@ -234,7 +243,8 @@ namespace IDALabOnWheels
         Attitude _simAttitude = new Attitude();
         Attitude SimulateAttitude()
         {
-            _simAttitude.angleY += _simXIncrement;
+            //_simAttitude.angleY += _simXIncrement;
+            _simAttitude.angleY += _simXIncrement/10;
 
             return (_simAttitude);
         }

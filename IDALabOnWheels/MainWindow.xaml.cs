@@ -87,8 +87,12 @@ namespace IDALabOnWheels
         double cWidth;
         double cHeight;
 
-        ActivityTimer _activity;
+        ActivityTimer _activityTimer;
+        StaticActivity _staticActivity;
+        DynamicActivity _dynamicActivity;
         bool _simulate = true;
+
+        // TODO: Graph ?? Temp, Altitude display, Calibrarion buttons, complete dynamic activity
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
@@ -326,6 +330,10 @@ namespace IDALabOnWheels
                     if (att != null)
                     {
                         Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
+                        if (_staticActivity != null) {
+                            if (_staticActivity.Process(att))
+                                _staticActivity.Stop();
+                        }
 
                         // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
                         // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
@@ -1034,27 +1042,57 @@ namespace IDALabOnWheels
         private void btnStartActivity_Click(object sender, RoutedEventArgs e)
         {
             //StartCountdown(CountdownDisplay);
-            _activity = new ActivityTimer();
-            _activity.NotifyPerSec = () =>
+            _activityTimer = new ActivityTimer();
+            _activityTimer.NotifyPerSec = () =>
             {
-                MainVM.TimeElapsed = _activity.GetElapsedTime().ToString();
+                MainVM.TimeElapsed = _activityTimer.GetElapsedTime().ToString();
             };
-            _activity.NotifyOnCompletion = () =>
+            _activityTimer.NotifyOnCompletion = () =>
             {
                 //MessageBox.Show("Time's up!");
                 MainVM.DisplayMessage = "Hold Still!!";
+                // Start activity
+                if (MainVM.DynamicActivity)
+                {
+                    _staticActivity = null;
+                    _dynamicActivity = new DynamicActivity();
+                    _dynamicActivity.NotifyPerSec = () =>
+                    {
+                        MainVM.TimeElapsed = _dynamicActivity.ElapsedTime.ToString();
+                    };
+                    _dynamicActivity.Start();
+                }
+                else
+                {
+                    _staticActivity = new StaticActivity();
+                    _staticActivity.NotifyPerSec = () =>
+                    {
+                        MainVM.TimeElapsed = _staticActivity.ElapsedTime.ToString();
+                    };
+                    _staticActivity.Start();
+                    _dynamicActivity = null;
+                }
+
             };
             MainVM.DisplayMessage = "Starting in ";
-            _activity.Start(true, new TimeSpan(0,0,5));
+            _activityTimer.Start(true, new TimeSpan(0,0,5));
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             Debug.WriteLine("Application EXIT Triggered..");
+            Properties.Settings.Default.Save(); // persist all modified settings
+
             if (EWBBoard != null)
                 EWBBoard.DoOnQuit();
 
-            Properties.Settings.Default.Save(); // persist all modified settings
+            ObjModel.Release(openGLControl.OpenGL);
+            skyBox.Release(openGLControl.OpenGL);
+            _compass.Release(openGLControl.OpenGL);
+            _cArrow.Release(openGLControl.OpenGL);
+
+            if (textureShader != null)
+                textureShader.Delete(openGLControl.OpenGL);
 
             System.Environment.Exit(0);
 

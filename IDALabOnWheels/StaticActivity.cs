@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace IDALabOnWheels
 {
@@ -22,20 +23,29 @@ namespace IDALabOnWheels
         /// <returns></returns>
         public bool Process(Attitude att)
         {
+            if (!_running) return false;
+
             if (att.angleX > EXP_X + TOLERANCE || att.angleX < EXP_X - TOLERANCE ||
                 att.angleY > EXP_Y + TOLERANCE || att.angleY < EXP_Y - TOLERANCE ||
                 att.heading > EXP_H + TOLERANCE || att.heading < EXP_H - TOLERANCE)
             {
                 Debug.WriteLine("Arritude Exceeded Activity Threshold! " + "X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
 
-                _timer.Stop();
                 return true;
             }
             else
             {
                 return false;
             }
-            
+        }
+
+        /// <summary>
+        /// Override the base stop(). The new keyword makes this clear
+        /// </summary>
+        public new void Stop()
+        {
+            MessageBox.Show("Static Activity is Done!");
+            base.Stop();
         }
     }
 }

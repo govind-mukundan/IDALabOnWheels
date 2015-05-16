@@ -110,8 +110,9 @@ namespace IDALabOnWheels
 
         }
 
-        void Release(OpenGL GL)
+        public void Release(OpenGL GL)
         {
+            TextureManager.Instance.Release(GL,_textureName);
             compassVAO.Delete(GL);
 
         }
@@ -196,5 +197,9 @@ namespace IDALabOnWheels
 
         }
 
+        public void Release(OpenGL GL){
+                        TextureManager.Instance.Release(GL,_textureName);
+                        arrowVAO.Delete(GL);
+        }
     }
 }
