@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Diagnostics;
 using DR = System.Drawing;
 using System.ComponentModel;
+using System.Windows.Media.Animation;
 
 namespace IDALabOnWheels
 {
@@ -86,6 +87,8 @@ namespace IDALabOnWheels
         double cWidth;
         double cHeight;
 
+        ActivityTimer _activity;
+        bool _simulate = true;
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
@@ -94,6 +97,7 @@ namespace IDALabOnWheels
             InitializeComponent();
             MainVM.PropertyChanged += Event_PropertyChanged;
             MainVM.SetupDefaultGUI();
+            cmbxPorts.SelectedIndex = Properties.Settings.Default.SelectedPort;
 
             ObjModel = new ObjModelLoader();
             ModelMatrix = new mat4[C_SCENE_DYNAMIC_ELEMENT_COUNT];
@@ -299,15 +303,18 @@ namespace IDALabOnWheels
 
 
 
-                //  Nudge the rotation.
-                rotation += 1f;
-                ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f,  ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-               // ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
-                ModelMatrix[0] = mat4.identity();
-               // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(ObjModel.Centroid.x, ObjModel.Centroid.y, ObjModel.Centroid.z));
-                ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
-                ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
-                ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
+                    //  Nudge the rotation.
+                    rotation += 1f;
+                    ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+                    if (!_simulate)
+                    {
+                    // ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                    ModelMatrix[0] = mat4.identity();
+                    // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(ObjModel.Centroid.x, ObjModel.Centroid.y, ObjModel.Centroid.z));
+                    ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+                    ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                    ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
+                }
                 if (!MainVM.RotateWorld)
                 {
                     Attitude att = null;
@@ -326,15 +333,15 @@ namespace IDALabOnWheels
 
                         ModelMatrix[0] = mat4.identity();
                         //ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
-                        ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
-                        // Pitch = rotate about Z axes
-                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.angleX), new vec3(0f, 0f, 1f));
-                        // Roll = rotate about X axes
-                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.angleY), new vec3(1f, 0f, 0f));
-                        // Yaw = rotate about Y axis
-                        ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(att.heading), new vec3(0f, 1f, 0f));
                         //  Create a model matrix to make the model a little bigger.
                         ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+                        // Pitch = rotate about Z axes
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.angleX), new vec3(0f, 0f, 1f));
+                        // Roll = rotate about X axes
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.angleY), new vec3(1f, 0f, 0f));
+                        // Yaw = rotate about Y axis
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.heading), new vec3(0f, 1f, 0f));
+                        ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
 
                         
                         //normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
@@ -962,11 +969,12 @@ namespace IDALabOnWheels
         private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
             EWBBoard = new EWBSensorBoard();
-            if (EWBBoard.Open(cmbxPorts.Text))
+            if (_simulate || EWBBoard.Open(cmbxPorts.Text))
             {
                 MainVM.StartStopIsEnabled = true;
                 Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
-               
+                Properties.Settings.Default.SelectedPort = cmbxPorts.SelectedIndex;
+
             }
 
         }
@@ -992,8 +1000,52 @@ namespace IDALabOnWheels
 
         }
 
+
+        private void StartCountdown(FrameworkElement target)
+        {
+            var countdownAnimation = new StringAnimationUsingKeyFrames();
+
+            for (var i = 5; i > 0; i--)
+            {
+                var keyTime = TimeSpan.FromSeconds(5 - i);
+                var frame = new DiscreteStringKeyFrame(i.ToString(), KeyTime.FromTimeSpan(keyTime));
+                countdownAnimation.KeyFrames.Add(frame);
+            }
+            countdownAnimation.KeyFrames.Add(new DiscreteStringKeyFrame(" ", KeyTime.FromTimeSpan(TimeSpan.FromSeconds(6))));
+            Storyboard.SetTargetName(countdownAnimation, target.Name);
+            Storyboard.SetTargetProperty(countdownAnimation, new PropertyPath(TextBlock.TextProperty));
+
+            var countdownStoryboard = new Storyboard();
+            countdownStoryboard.Children.Add(countdownAnimation);
+            countdownStoryboard.Completed += CountdownTimer_Completed;
+            countdownStoryboard.Begin(this);
+        }
+
+        private void CountdownTimer_Completed(object sender, EventArgs e)
+        {
+            MessageBox.Show("Time's up!");
+        }
+
+        /// <summary>
+        /// Do stuff depending on the selected activity
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnStartActivity_Click(object sender, RoutedEventArgs e)
         {
+            //StartCountdown(CountdownDisplay);
+            _activity = new ActivityTimer();
+            _activity.NotifyPerSec = () =>
+            {
+                MainVM.TimeElapsed = _activity.GetElapsedTime().ToString();
+            };
+            _activity.NotifyOnCompletion = () =>
+            {
+                //MessageBox.Show("Time's up!");
+                MainVM.DisplayMessage = "Hold Still!!";
+            };
+            MainVM.DisplayMessage = "Starting in ";
+            _activity.Start(true, new TimeSpan(0,0,5));
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -1001,6 +1053,8 @@ namespace IDALabOnWheels
             Debug.WriteLine("Application EXIT Triggered..");
             if (EWBBoard != null)
                 EWBBoard.DoOnQuit();
+
+            Properties.Settings.Default.Save(); // persist all modified settings
 
             System.Environment.Exit(0);
 

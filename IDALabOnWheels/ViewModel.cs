@@ -73,6 +73,11 @@ namespace IDALabOnWheels
         private bool notchON;
         public bool NotchON { get { return notchON; } set { notchON = value; NotifyPropertyChanged("NotchON"); } }
 
+        private string timeElapsed;
+        public string TimeElapsed { get { return timeElapsed; } set { timeElapsed = value; NotifyPropertyChanged("TimeElapsed"); } }
+
+        private string displayMsg;
+        public string DisplayMessage { get { return displayMsg; } set { displayMsg = value; NotifyPropertyChanged("DisplayMessage"); } }
 
         /// <summary>
         /// Default settings for the View Model
@@ -81,9 +86,10 @@ namespace IDALabOnWheels
         {
             StaticActivity = true; // also sets up default model as E100LP
             Lead1 = true;
-            ActivityIsEnabled = false;
+            ActivityIsEnabled = true;
             rotateWorld = false;
             NotchON = true;
+            DisplayMessage = "Click Start to begin!";
         }
 
 

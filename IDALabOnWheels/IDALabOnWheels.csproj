@@ -77,9 +77,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Activity.cs" />
+    <Compile Include="ActivityTimer.cs" />
     <Compile Include="Compass.cs" />
+    <Compile Include="DynamicActivity.cs" />
     <Compile Include="GShaderProgram.cs" />
     <Compile Include="ManifestResourceLoader.cs" />
+    <Compile Include="StaticActivity.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="ViewModel.cs" />
     <Compile Include="SerialPortAdapter.cs" />

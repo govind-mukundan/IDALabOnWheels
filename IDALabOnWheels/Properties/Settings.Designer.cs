@@ -22,5 +22,17 @@ namespace IDALabOnWheels.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SelectedPort {
+            get {
+                return ((int)(this["SelectedPort"]));
+            }
+            set {
+                this["SelectedPort"] = value;
+            }
+        }
     }
 }

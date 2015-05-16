@@ -72,7 +72,7 @@ namespace IDALabOnWheels
         public void Close()
         {
             Debug.WriteLine("Closing Serial Port");
-            if (_serialPort.IsOpen)
+            if (_serialPort != null && _serialPort.IsOpen)
             {
                 _cts.Cancel();
                 _serialPort.Close();

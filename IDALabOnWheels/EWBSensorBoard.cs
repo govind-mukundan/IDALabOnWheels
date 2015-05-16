@@ -125,6 +125,8 @@ namespace IDALabOnWheels
     class EWBSensorBoard
     {
         bool _debug = false;
+        bool _simulate = true;
+
         string MSP_HEADER = "$M<";
 
 
@@ -228,8 +230,19 @@ namespace IDALabOnWheels
             return (AttitudeQ.GetAvailableData());
         }
 
+        float _simXIncrement = .5f;
+        Attitude _simAttitude = new Attitude();
+        Attitude SimulateAttitude()
+        {
+            _simAttitude.angleY += _simXIncrement;
+
+            return (_simAttitude);
+        }
+
         public Attitude GetAverageAttitude()
         {
+            if (_simulate) return (SimulateAttitude()); // Simulation
+
             Attitude[] att = null;
             Attitude avg = new Attitude();
 
