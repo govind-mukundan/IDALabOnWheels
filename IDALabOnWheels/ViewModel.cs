@@ -79,6 +79,13 @@ namespace IDALabOnWheels
         private string displayMsg;
         public string DisplayMessage { get { return displayMsg; } set { displayMsg = value; NotifyPropertyChanged("DisplayMessage"); } }
 
+        private string altitude;
+        public string Altitude { get { return altitude; } set { altitude = value; NotifyPropertyChanged("Altitude"); } }
+
+        private string temperature;
+        public string Temperature { get { return temperature; } set { temperature = value + "°C"; NotifyPropertyChanged("Temperature"); } }
+
+
         /// <summary>
         /// Default settings for the View Model
         /// </summary>

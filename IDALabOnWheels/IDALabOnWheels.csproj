@@ -141,6 +141,9 @@
     <EmbeddedResource Include="Shaders\lighting_frag_shader.glsl" />
     <EmbeddedResource Include="Shaders\lighting_vertex_shader.glsl" />
     <EmbeddedResource Include="Shaders\vertex_shader.glsl" />
+    <EmbeddedResource Include="Shaders\main_shader.geom" />
+    <EmbeddedResource Include="Shaders\particle.frag" />
+    <EmbeddedResource Include="Shaders\particle.vert" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="1425972558_60814.ico" />

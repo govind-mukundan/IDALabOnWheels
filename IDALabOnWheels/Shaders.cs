@@ -6,27 +6,27 @@ using System.Threading.Tasks;
 
 namespace IDALabOnWheels
 {
-    class Shader
-    {
-                private static readonly Shader instance = new Shader();
+    //class Shader
+    //{
+    //            private static readonly Shader instance = new Shader();
 
-                private Shader() { }
+    //            private Shader() { }
 
-        public static Shader Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    return instance;
-                }
-                return instance;
-            }
-        }
+    //    public static Shader Instance
+    //    {
+    //        get
+    //        {
+    //            if (instance == null)
+    //            {
+    //                return instance;
+    //            }
+    //            return instance;
+    //        }
+    //    }
 
-        public uint AttrbColor;
-        public uint AttrbPosition;
-        public uint AttrbTexture;
-        public uint AttrbSurfaceNormal;
-    }
+    //    public uint AttrbColor;
+    //    public uint AttrbPosition;
+    //    public uint AttrbTexture;
+    //    public uint AttrbSurfaceNormal;
+    //}
 }

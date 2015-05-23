@@ -38,6 +38,7 @@ namespace IDALabOnWheels
         GShaderProgram colorShader;
         string[] vertexShaderSource;
         string[] fragmentShaderSource;
+        string[] geomShaderSource;
         //  The projection, view and model matrices.
         mat4 projectionMatrix;
         mat4 viewMatrix;
@@ -109,6 +110,7 @@ namespace IDALabOnWheels
 
             vertexShaderSource = new string[2];
             fragmentShaderSource = new string[2];
+            geomShaderSource = new string[2];
         }
 
         /// <summary>
@@ -240,10 +242,13 @@ namespace IDALabOnWheels
             // gl.ClearColor(0.4f, 0.6f, 0.9f, 0.0f);
             //gl.ClearColor(0f, 0f, 0f, 0.0f);
             //  Create the shader program.
-             vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
-             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
+             //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
+             //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
+             vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
+             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
+             geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
              textureShader = new GShaderProgram();
-            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
+            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0],null);
             attribute_vpos = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vTextureCoord");
