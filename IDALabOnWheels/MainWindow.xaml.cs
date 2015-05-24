@@ -242,13 +242,17 @@ namespace IDALabOnWheels
             // gl.ClearColor(0.4f, 0.6f, 0.9f, 0.0f);
             //gl.ClearColor(0f, 0f, 0f, 0.0f);
             //  Create the shader program.
-             //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
-             //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
-             vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
-             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
-             geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
-             textureShader = new GShaderProgram();
-            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0],null);
+            textureShader = new GShaderProgram();
+            //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
+            //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
+            //textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
+            vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
+            fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
+            geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
+            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], null);
+  
+            
+            
             attribute_vpos = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vTextureCoord");

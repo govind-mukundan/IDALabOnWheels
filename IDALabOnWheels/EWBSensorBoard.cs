@@ -244,7 +244,7 @@ namespace IDALabOnWheels
         Attitude SimulateAttitude()
         {
             //_simAttitude.angleY += _simXIncrement;
-            _simAttitude.angleY += _simXIncrement/10;
+            _simAttitude.angleY += _simXIncrement/1;
 
             return (_simAttitude);
         }
