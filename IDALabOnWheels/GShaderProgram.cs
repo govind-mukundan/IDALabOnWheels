@@ -34,26 +34,27 @@ namespace IDALabOnWheels
         readonly Shader geometryShader = new Shader();
 
 
-        public void Create(OpenGL gl, string vertexShaderSource, string fragmentShaderSource, string geomShaderSource, Dictionary<uint, string> attributeLocations)
+        public void Create(OpenGL gl, string vertexShaderSource, string fragmentShaderSource, string geomShaderSource, string[] transformFeedbackVaryings)
         {
-            //  Create the shaders.
-            vertexShader.Create(gl, OpenGL.GL_VERTEX_SHADER, vertexShaderSource);
-            fragmentShader.Create(gl, OpenGL.GL_FRAGMENT_SHADER, fragmentShaderSource);
-            geometryShader.Create(gl, OpenGL.GL_GEOMETRY_SHADER, geomShaderSource);
-
-            //  Create the program, attach the shaders.
+            //  Create the program,
             shaderProgramObject = gl.CreateProgram();
-            gl.AttachShader(shaderProgramObject, vertexShader.ShaderObject);
-            gl.AttachShader(shaderProgramObject, fragmentShader.ShaderObject);
-            gl.AttachShader(shaderProgramObject, geometryShader.ShaderObject);
-
-            //  Before we link, bind any vertex attribute locations.
-            if (attributeLocations != null)
+            //  Create the shaders. attach the shaders.
+            if (vertexShaderSource != null)
             {
-                foreach (var vertexAttributeLocation in attributeLocations)
-                    gl.BindAttribLocation(shaderProgramObject, vertexAttributeLocation.Key, vertexAttributeLocation.Value);
+                vertexShader.Create(gl, OpenGL.GL_VERTEX_SHADER, vertexShaderSource);
+                gl.AttachShader(shaderProgramObject, vertexShader.ShaderObject);
+            }
+            if (fragmentShader != null) { 
+                fragmentShader.Create(gl, OpenGL.GL_FRAGMENT_SHADER, fragmentShaderSource);
+                gl.AttachShader(shaderProgramObject, fragmentShader.ShaderObject);
+            }
+            if (geometryShader != null) { 
+                geometryShader.Create(gl, OpenGL.GL_GEOMETRY_SHADER, geomShaderSource);
+                gl.AttachShader(shaderProgramObject, geometryShader.ShaderObject);
             }
 
+            if (transformFeedbackVaryings != null)
+            gl.TransformFeedbackVaryings(ShaderProgramObject, transformFeedbackVaryings.Length, transformFeedbackVaryings, OpenGL.GL_INTERLEAVED_ATTRIBS);
             //  Now we can link the program.
             gl.LinkProgram(shaderProgramObject);
 
@@ -64,44 +65,44 @@ namespace IDALabOnWheels
                 throw new ShaderCompilationException(string.Format("Failed to link shader program with ID {0}.", shaderProgramObject), GetInfoLog(gl));
             }
         }
-        /// <summary>
-        /// Creates the shader program.
-        /// </summary>
-        /// <param name="gl">The gl.</param>
-        /// <param name="vertexShaderSource">The vertex shader source.</param>
-        /// <param name="fragmentShaderSource">The fragment shader source.</param>
-        /// <param name="attributeLocations">The attribute locations. This is an optional array of
-        /// uint attribute locations to their names.</param>
-        /// <exception cref="ShaderCompilationException"></exception>
-        public void Create(OpenGL gl, string vertexShaderSource, string fragmentShaderSource,
-            Dictionary<uint, string> attributeLocations)
-        {
-            //  Create the shaders.
-            vertexShader.Create(gl, OpenGL.GL_VERTEX_SHADER, vertexShaderSource);
-            fragmentShader.Create(gl, OpenGL.GL_FRAGMENT_SHADER, fragmentShaderSource);
+        ///// <summary>
+        ///// Creates the shader program.
+        ///// </summary>
+        ///// <param name="gl">The gl.</param>
+        ///// <param name="vertexShaderSource">The vertex shader source.</param>
+        ///// <param name="fragmentShaderSource">The fragment shader source.</param>
+        ///// <param name="attributeLocations">The attribute locations. This is an optional array of
+        ///// uint attribute locations to their names.</param>
+        ///// <exception cref="ShaderCompilationException"></exception>
+        //public void Create(OpenGL gl, string vertexShaderSource, string fragmentShaderSource,
+        //    Dictionary<uint, string> attributeLocations)
+        //{
+        //    //  Create the shaders.
+        //    vertexShader.Create(gl, OpenGL.GL_VERTEX_SHADER, vertexShaderSource);
+        //    fragmentShader.Create(gl, OpenGL.GL_FRAGMENT_SHADER, fragmentShaderSource);
 
-            //  Create the program, attach the shaders.
-            shaderProgramObject = gl.CreateProgram();
-            gl.AttachShader(shaderProgramObject, vertexShader.ShaderObject);
-            gl.AttachShader(shaderProgramObject, fragmentShader.ShaderObject);
+        //    //  Create the program, attach the shaders.
+        //    shaderProgramObject = gl.CreateProgram();
+        //    gl.AttachShader(shaderProgramObject, vertexShader.ShaderObject);
+        //    gl.AttachShader(shaderProgramObject, fragmentShader.ShaderObject);
 
-            //  Before we link, bind any vertex attribute locations.
-            if (attributeLocations != null)
-            {
-                foreach (var vertexAttributeLocation in attributeLocations)
-                    gl.BindAttribLocation(shaderProgramObject, vertexAttributeLocation.Key, vertexAttributeLocation.Value);
-            }
+        //    //  Before we link, bind any vertex attribute locations.
+        //    if (attributeLocations != null)
+        //    {
+        //        foreach (var vertexAttributeLocation in attributeLocations)
+        //            gl.BindAttribLocation(shaderProgramObject, vertexAttributeLocation.Key, vertexAttributeLocation.Value);
+        //    }
 
-            //  Now we can link the program.
-            gl.LinkProgram(shaderProgramObject);
+        //    //  Now we can link the program.
+        //    gl.LinkProgram(shaderProgramObject);
 
-            //  Now that we've compiled and linked the shader, check it's link status. If it's not linked properly, we're
-            //  going to throw an exception.
-            if (GetLinkStatus(gl) == false)
-            {
-                throw new ShaderCompilationException(string.Format("Failed to link shader program with ID {0}.", shaderProgramObject), GetInfoLog(gl));
-            }
-        }
+        //    //  Now that we've compiled and linked the shader, check it's link status. If it's not linked properly, we're
+        //    //  going to throw an exception.
+        //    if (GetLinkStatus(gl) == false)
+        //    {
+        //        throw new ShaderCompilationException(string.Format("Failed to link shader program with ID {0}.", shaderProgramObject), GetInfoLog(gl));
+        //    }
+        //}
 
         public void Delete(OpenGL gl)
         {

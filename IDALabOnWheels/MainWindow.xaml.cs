@@ -250,9 +250,7 @@ namespace IDALabOnWheels
             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
             geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
             textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], null);
-  
-            
-            
+
             attribute_vpos = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vTextureCoord");
@@ -276,6 +274,9 @@ namespace IDALabOnWheels
             cWidth = openGLControl.ActualWidth;
             cHeight = openGLControl.ActualHeight;
             Debug.WriteIf(_debug, "Width = " + cWidth.ToString() + " Height = " + cHeight.ToString());
+
+            ParticleSystem pSys = new ParticleSystem();
+            pSys.Init(gl);
         }
 
         float rotation2 = 0;
