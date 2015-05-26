@@ -44,11 +44,13 @@ namespace IDALabOnWheels
                 vertexShader.Create(gl, OpenGL.GL_VERTEX_SHADER, vertexShaderSource);
                 gl.AttachShader(shaderProgramObject, vertexShader.ShaderObject);
             }
-            if (fragmentShader != null) { 
+            if (fragmentShaderSource != null)
+            { 
                 fragmentShader.Create(gl, OpenGL.GL_FRAGMENT_SHADER, fragmentShaderSource);
                 gl.AttachShader(shaderProgramObject, fragmentShader.ShaderObject);
             }
-            if (geometryShader != null) { 
+            if (geomShaderSource != null)
+            { 
                 geometryShader.Create(gl, OpenGL.GL_GEOMETRY_SHADER, geomShaderSource);
                 gl.AttachShader(shaderProgramObject, geometryShader.ShaderObject);
             }

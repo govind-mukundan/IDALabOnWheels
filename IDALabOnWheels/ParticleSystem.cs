@@ -44,52 +44,52 @@ class Particle
 
         public void Init(OpenGL gl)
         {
-            spUpdate = new GShaderProgram();
-            spRender = new GShaderProgram();
-            vertexShaderSource = new string[2];
-            fragmentShaderSource = new string[2];
-            geomShaderSource = new string[2];
-            tFeedbackObj = new uint[1];
-            query = new uint[1];
-            particleVAO = new VertexBufferArray[2];
-            string[] sVaryings = {
-		"vPositionOut",
-		"vVelocityOut",
-		"vColorOut",
-		"fLifeTimeOut",
-		"fSizeOut",
-		"iTypeOut"};
+        //    spUpdate = new GShaderProgram();
+        //    spRender = new GShaderProgram();
+        //    vertexShaderSource = new string[2];
+        //    fragmentShaderSource = new string[2];
+        //    geomShaderSource = new string[2];
+        //    tFeedbackObj = new uint[1];
+        //    query = new uint[1];
+        //    particleVAO = new VertexBufferArray[2];
+        //    string[] sVaryings = {
+        //"vPositionOut",
+        //"vVelocityOut",
+        //"vColorOut",
+        //"fLifeTimeOut",
+        //"fSizeOut",
+        //"iTypeOut"};
 
-            vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGen.vert");
-            geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGen.geom");
-            fragmentShaderSource[0] = null;
-            vertexShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleRender.vert");
-            fragmentShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleRender.frag");
-            geomShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGenRender.geom");
-            spUpdate.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], sVaryings);
-            spRender.Create(gl, vertexShaderSource[1], fragmentShaderSource[1], geomShaderSource[1], null);
-            spUpdate.AssertValid(gl);
-            spRender.AssertValid(gl);
+        //    vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGen.vert");
+        //    geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGen.geom");
+        //    fragmentShaderSource[0] = null;
+        //    vertexShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleRender.vert");
+        //    fragmentShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleRender.frag");
+        //    geomShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\particleGenRender.geom");
+        //    spUpdate.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], sVaryings);
+        //    spRender.Create(gl, vertexShaderSource[1], fragmentShaderSource[1], geomShaderSource[1], null);
+        //    spUpdate.AssertValid(gl);
+        //    spRender.AssertValid(gl);
 
-            gl.GenTransformFeedbacks(1, tFeedbackObj);
-            gl.GenQueries(1, query);
+        //    gl.GenTransformFeedbacks(1, tFeedbackObj);
+        //    gl.GenQueries(1, query);
 
-            for (int i = 0; i < particleVAO.Length; i++)
-            {
-                particleVAO[i].Create(gl);
-                particleVAO[i].Bind(gl);
+        //    for (int i = 0; i < particleVAO.Length; i++)
+        //    {
+        //        particleVAO[i].Create(gl);
+        //        particleVAO[i].Bind(gl);
 
-                VertexBuffer[] objVBO = new VertexBuffer[3];
-                objVBO[i] = new VertexBuffer();
-                objVBO[i].Create(gl);
-                objVBO[i].Bind(gl);
-                gl.BufferData(OpenGL.GL_ARRAY_BUFFER, Marshal.SizeOf(typeof(Particle)) * MAX_PARTICLES_ON_SCENE,(IntPtr)null, OpenGL.GL_DYNAMIC_DRAW);
-                gl.BufferSubData(OpenGL.GL_ARRAY_BUFFER, 0, Marshal.SizeOf(typeof(Particle)), &partInitialization);
-            }
-                //  Generate the vertex array.
+        //        VertexBuffer[] objVBO = new VertexBuffer[3];
+        //        objVBO[i] = new VertexBuffer();
+        //        objVBO[i].Create(gl);
+        //        objVBO[i].Bind(gl);
+        //        gl.BufferData(OpenGL.GL_ARRAY_BUFFER, Marshal.SizeOf(typeof(Particle)) * MAX_PARTICLES_ON_SCENE,(IntPtr)null, OpenGL.GL_DYNAMIC_DRAW);
+        //        gl.BufferSubData(OpenGL.GL_ARRAY_BUFFER, 0, Marshal.SizeOf(typeof(Particle)), &partInitialization);
+        //    }
+        //        //  Generate the vertex array.
 
-                gl.GenBuffers(1, ids);
-            vertexBufferObject = ids[0];
+        //        gl.GenBuffers(1, ids);
+        //    vertexBufferObject = ids[0];
    //glGenQueries(1, &uiQuery);
 
    //glGenBuffers(2, uiParticleBuffer);

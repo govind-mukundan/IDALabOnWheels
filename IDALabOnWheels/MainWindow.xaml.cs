@@ -245,7 +245,7 @@ namespace IDALabOnWheels
             textureShader = new GShaderProgram();
             //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
             //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
-            //textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
+            //textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null, null);
             vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
             geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
