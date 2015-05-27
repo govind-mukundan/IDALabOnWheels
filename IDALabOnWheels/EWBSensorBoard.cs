@@ -125,7 +125,7 @@ namespace IDALabOnWheels
     class EWBSensorBoard
     {
         bool _debug = false;
-        bool _simulate = true;
+        bool _simulate = false;
 
         string MSP_HEADER = "$M<";
 

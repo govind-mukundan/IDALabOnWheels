@@ -91,7 +91,7 @@ namespace IDALabOnWheels
         ActivityTimer _activityTimer;
         StaticActivity _staticActivity;
         DynamicActivity _dynamicActivity;
-        bool _simulate = true;
+        bool _simulate = false;
 
         // TODO: Graph ?? Temp, Altitude display, Calibrarion buttons, complete dynamic activity
         /// <summary>
@@ -179,8 +179,8 @@ namespace IDALabOnWheels
             DrawObj(gl);
 
             DrawCompass(gl);
-           // gl.DrawText(5, 500, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f, DateTime.Now.ToShortTimeString());
-           // gl.Flush();
+            // gl.DrawText(5, 500, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f, DateTime.Now.ToShortTimeString());
+            // gl.Flush();
 
             // gl.DrawText(5, 50, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f,string.Format("God is Great"));
             // gl.Flush();
@@ -250,22 +250,22 @@ namespace IDALabOnWheels
             fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
             geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
             textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], null);
-  
-            
-            
+
+
+
             attribute_vpos = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vPosition");
             attribute_vcol = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vColor");
             attribute_vtexture = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vTextureCoord");
             attribute_vSurfNormal = (uint)gl.GetAttribLocation(textureShader.ShaderProgramObject, "vSurfaceNormal");
             textureShader.AssertValid(gl);
 
-            
-            InitializeFixedBufferContents();            
+
+            InitializeFixedBufferContents();
             skyBox = new SkyBox();
             skyBox.loadSkybox(gl, null, textureShader);
 
-           // ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl, textureShader); _modelScaleFactor = 1f;
-           //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
+            // ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Wolf.obj", gl, textureShader); _modelScaleFactor = 1f;
+            //ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\simba.obj", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 215f;
             ObjModel.LoadObj(AppDomain.CurrentDomain.BaseDirectory + "mesh\\Assembly.STL", gl, textureShader); _modelScaleFactor = 1f; _modelYAxixRotFactor = 0;
 
             _compass = new Compass();
@@ -288,10 +288,10 @@ namespace IDALabOnWheels
             ModelMatrix[0] = mat4.identity();
             //ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, -5f, 0f));
             ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(-ObjModel.Centroid.x, -ObjModel.Centroid.y, -ObjModel.Centroid.z));
-           // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, 0f, ObjModel.Centroid.z));
+            // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(0f, 0f, ObjModel.Centroid.z));
             ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(_modelYAxixRotFactor), new vec3(0f, 1f, 0f));
             ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
-           // normalMatrix = myGLM.transpose(new mat4(new vec4(1f, 2f, 3f, 4f), new vec4(5f, 6f, 7f, 8f), new vec4(9f, 10f, 11f, 12f), new vec4(13f, 14f, 15f, 16f)));
+            // normalMatrix = myGLM.transpose(new mat4(new vec4(1f, 2f, 3f, 4f), new vec4(5f, 6f, 7f, 8f), new vec4(9f, 10f, 11f, 12f), new vec4(13f, 14f, 15f, 16f)));
             normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
 
             ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
@@ -316,30 +316,31 @@ namespace IDALabOnWheels
 
 
 
-                    //  Nudge the rotation.
-                    rotation += 1f;
-                    ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-                    if (!_simulate)
-                    {
-                    // ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
-                    ModelMatrix[0] = mat4.identity();
-                    // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(ObjModel.Centroid.x, ObjModel.Centroid.y, ObjModel.Centroid.z));
-                    ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
-                    ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
-                    ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
-                }
+                //  Nudge the rotation.
+                rotation += 1f;
+                ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+                //if (!_simulate)
+                //{
+                //    // ViewMatrix[0] = glm.rotate(ViewMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                //    ModelMatrix[0] = mat4.identity();
+                //    // ModelMatrix[0] = glm.translate(ModelMatrix[0], new vec3(ObjModel.Centroid.x, ObjModel.Centroid.y, ObjModel.Centroid.z));
+                //    ModelMatrix[0] = glm.scale(ModelMatrix[0], new vec3(_modelScaleFactor));
+                //    ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(rotation), new vec3(1f, 0f, 0f));
+                //    ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
+                //}
                 if (!MainVM.RotateWorld)
                 {
                     Attitude att = null;
-                                            
-                     //   ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
+
+                    //   ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
 
                     if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
 
                     if (att != null)
                     {
                         Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
-                        if (_staticActivity != null) {
+                        if (_staticActivity != null)
+                        {
                             if (_staticActivity.Process(att))
                                 _staticActivity.Stop();
                         }
@@ -360,7 +361,7 @@ namespace IDALabOnWheels
                         ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.heading), new vec3(0f, 1f, 0f));
                         ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
 
-                        
+
                         //normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
                         // ModelMatrix[0] = glm.scale(new mat4(1.0f), new vec3(4f));
@@ -388,7 +389,7 @@ namespace IDALabOnWheels
             }
             normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[0]));
             //normalMatrix = glm.inverse(modelMatrix);
-           // normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
+            // normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
 
         }
 
@@ -749,7 +750,7 @@ namespace IDALabOnWheels
         void DrawCompass(OpenGL GL)
         {
             mat4 model = mat4.identity();
-            model = glm.translate(model, new vec3(7,-3,-6));
+            model = glm.translate(model, new vec3(7, -3, -6));
             //model = glm.scale(model,new vec3(0.2f));
             textureShader.Bind(GL);
             textureShader.SetUniform(GL, "projectionMatrix", glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f));
@@ -779,9 +780,9 @@ namespace IDALabOnWheels
             _cArrow.Render(GL, textureShader);
 
             textureShader.Unbind(GL);
-            
+
         }
-        
+
 
         /// <summary>
         /// Since the X cordinates are fixed for each sample in the buffer and just depends on the actual size of the buffer, they can be initialized once and for all.
@@ -833,7 +834,7 @@ namespace IDALabOnWheels
             textureShader.SetUniform(GL, "specLight.Ks", new vec3(.9f, .9f, .9f));
             textureShader.SetUniform(GL, "specLight.Shininess", 50f);
 
-           // GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
+            // GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
             ObjModel.RenderObj(GL, textureShader);
             //GL.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_FILL);
             //modelMatrix = glm.translate(new mat4(1.0f), new vec3(0.0f, 5.0f, -1.0f));
@@ -872,27 +873,27 @@ namespace IDALabOnWheels
 
                 if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
 
-                    if (att != null)
-                    {
-                        Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
+                if (att != null)
+                {
+                    Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
 
-                        // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
-                        // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
-                        // to get Scale, Rotate and Translate effect on the actual data.
+                    // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
+                    // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
+                    // to get Scale, Rotate and Translate effect on the actual data.
 
-                        ModelMatrix[1] = mat4.identity();
-                        ViewMatrix[1] = mat4.identity();
-                        // Pitch = rotate about Z axes
-                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleX), new vec3(0f, 0f, 1f));
-                        // Roll = rotate about X axes
-                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleY), new vec3(1f, 0f, 0f));
-                        // Yaw = rotate about Y axis
-                        ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.heading), new vec3(0f, 1f, 0f));
-                    }
+                    ModelMatrix[1] = mat4.identity();
+                    ViewMatrix[1] = mat4.identity();
+                    // Pitch = rotate about Z axes
+                    ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleX), new vec3(0f, 0f, 1f));
+                    // Roll = rotate about X axes
+                    ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.angleY), new vec3(1f, 0f, 0f));
+                    // Yaw = rotate about Y axis
+                    ViewMatrix[1] = glm.rotate(ViewMatrix[1], D2R(att.heading), new vec3(0f, 1f, 0f));
+                }
             }
             normalMatrix = myGLM.transpose(glm.inverse(ModelMatrix[1]));
-           // ModelMatrix[1] = mat4.identity();
-           // ModelMatrix[1] = glm.translate(ModelMatrix[1], new vec3(0f, 0f, 0.1f));
+            // ModelMatrix[1] = mat4.identity();
+            // ModelMatrix[1] = glm.translate(ModelMatrix[1], new vec3(0f, 0f, 0.1f));
 
             //            // Compute new orientation
             //float horizontalAngle=0f,verticalAngle =0f;  
@@ -1084,7 +1085,7 @@ namespace IDALabOnWheels
 
             };
             MainVM.DisplayMessage = "Starting in ";
-            _activityTimer.Start(true, new TimeSpan(0,0,5));
+            _activityTimer.Start(true, new TimeSpan(0, 0, 5));
         }
 
         private void Window_Closed(object sender, EventArgs e)
