@@ -6,7 +6,8 @@
         Title="IDA Lab On Wheels" Height="634" Width="1067" 
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         Icon="1425972558_60814.ico"
-        Closed="Window_Closed">
+        Closed="Window_Closed"
+        WindowState="Maximized">
     <Window.DataContext>
         <local:ViewModel x:Name="MainVM"/>
     </Window.DataContext>
@@ -38,7 +39,7 @@
         <RadioButton Content="Static Activity" HorizontalAlignment="Left" Margin="451,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StaticActivity, Mode=TwoWay}"/>
         <RadioButton Content="Dynamic Activity" HorizontalAlignment="Left" Margin="451,31,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DynamicActivity, Mode=TwoWay}"/>
         <Button Content="Start" HorizontalAlignment="Left" Margin="573,13,0,0" VerticalAlignment="Top" Width="75" Height="34" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding Path=ActivityIsEnabled}"/>
-        <TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="800,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="70" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
+        <TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="0,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="122" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
         <TextBlock x:Name="DispMessage" HorizontalAlignment="Left" Margin="23,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="87" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=DisplayMessage}" FontFamily="Jokerman" Foreground="Red"/>
     </Grid>
 </Window>

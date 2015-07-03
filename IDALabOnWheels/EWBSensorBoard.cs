@@ -34,6 +34,10 @@ typedef struct {
   int16_t angle[2];            // absolute angle inclination in multiple of 0.1 degree    180 deg = 1800
   int16_t heading;             // variometer in cm/s
 } att_t;
+
+ * Heading : Is the offset of the board from Magnetic North in degrees, varies from 0 to +/- 180
+ * Pitch (X) : Is the rotation along the axis passing parallel through the Wings of an aircraft
+ * Roll (Y) : Is the rotation along the axis passing through the head and tail of the aircraft
 */
 
 
@@ -155,7 +159,7 @@ namespace IDALabOnWheels
         const int C_SAMPLE_INTERVAL_ALT_MS = 100;
         const int C_SAMPLE_INTERVAL_STAT_MS = 200;
         // Example commands: IDENT - Tx 0x244d3c006464, Rx - 24 4d 3e 01 64 0a 6f
-
+        public Attitude CurrentAttitude; // memorry of the last attitide
 
         State _currentState;
 
@@ -272,6 +276,7 @@ namespace IDALabOnWheels
             avg.angleY = Utility.Median(angles[1]);
             avg.heading = Utility.Median(angles[2]);
 
+            CurrentAttitude = avg;
             return (avg);
         }
 

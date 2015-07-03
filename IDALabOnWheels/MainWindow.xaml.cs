@@ -92,6 +92,7 @@ namespace IDALabOnWheels
         StaticActivity _staticActivity;
         DynamicActivity _dynamicActivity;
         bool _simulate = false;
+        float _compassRot;
 
         // TODO: Graph ?? Temp, Altitude display, Calibrarion buttons, complete dynamic activity
         /// <summary>
@@ -339,12 +340,18 @@ namespace IDALabOnWheels
                     if (att != null)
                     {
                         Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
+                        _compassRot = att.heading;
                         if (_staticActivity != null)
                         {
                             if (_staticActivity.Process(att))
                                 _staticActivity.Stop();
                         }
 
+                        if (_dynamicActivity != null)
+                        {
+                            if (_dynamicActivity.Process(att))
+                                _dynamicActivity.Stop(); 
+                        }
                         // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
                         // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
                         // to get Scale, Rotate and Translate effect on the actual data.
@@ -770,7 +777,7 @@ namespace IDALabOnWheels
 
             model = mat4.identity();
             model = glm.translate(model, new vec3(7, -3, -6));
-            model = glm.rotate(model, D2R(rotation), new vec3(0f, 0f, 1f));
+            model = glm.rotate(model, D2R(-1 * _compassRot), new vec3(0f, 0f, 1f));
             model = glm.scale(model, new vec3(.1f, .8f, 1f));
 
             textureShader.SetUniform(GL, "projectionMatrix", glm.perspective(D2R(60), (float)cWidth / (float)cHeight, 0.01f, 100.0f));
@@ -880,7 +887,7 @@ namespace IDALabOnWheels
                     // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
                     // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
                     // to get Scale, Rotate and Translate effect on the actual data.
-
+                    _compassRot = att.heading;
                     ModelMatrix[1] = mat4.identity();
                     ViewMatrix[1] = mat4.identity();
                     // Pitch = rotate about Z axes
@@ -1060,21 +1067,24 @@ namespace IDALabOnWheels
             _activityTimer.NotifyOnCompletion = () =>
             {
                 //MessageBox.Show("Time's up!");
-                MainVM.DisplayMessage = "Hold Still!!";
+                
                 // Start activity
                 if (MainVM.DynamicActivity)
                 {
+                    MainVM.DisplayMessage = "Rotate along Roll axis!!";
                     _staticActivity = null;
                     _dynamicActivity = new DynamicActivity();
                     _dynamicActivity.NotifyPerSec = () =>
                     {
-                        MainVM.TimeElapsed = _dynamicActivity.ElapsedTime.ToString();
+                        MainVM.TimeElapsed = _dynamicActivity.ElapsedTime.ToString() + "\n"  + _dynamicActivity.CurrentRPM.ToString();
                     };
                     _dynamicActivity.Start();
                 }
                 else
                 {
+                    MainVM.DisplayMessage = "Hold Still!!";
                     _staticActivity = new StaticActivity();
+                    _staticActivity.SetReference(EWBBoard.CurrentAttitude.angleX, EWBBoard.CurrentAttitude.angleY, EWBBoard.CurrentAttitude.heading);
                     _staticActivity.NotifyPerSec = () =>
                     {
                         MainVM.TimeElapsed = _staticActivity.ElapsedTime.ToString();
