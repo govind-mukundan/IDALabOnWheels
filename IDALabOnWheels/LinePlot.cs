@@ -122,6 +122,7 @@ namespace IDALabOnWheels
         /// <param name="data"></param>
         public void FillBuffer(vec3[] data)
         {
+            try { 
             if (_bufferIndex + data.Length >= C_BUFFER_SIZE) // data is going to roll over?
                 _bufferIndex = 0;
 
@@ -132,6 +133,11 @@ namespace IDALabOnWheels
                 _buffer[1][_bufferIndex].y =  (-1.0f * (data[i].y - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 0) ;
                 _buffer[2][_bufferIndex].y = (-1.0f * (data[i].z - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 0) ;
                 _bufferIndex++;
+            }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
             }
         }
 

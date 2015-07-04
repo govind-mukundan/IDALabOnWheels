@@ -301,13 +301,13 @@ namespace IDALabOnWheels
             //gl.ClearColor(0f, 0f, 0f, 0.0f);
             //  Create the shader program.
             textureShader = new GShaderProgram();
-            //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
-            //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
-            //textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
-            vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
-            fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
-            geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
-            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], null);
+            vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\vertex_shader.glsl");
+            fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\fragment_shader.glsl");
+            textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], null);
+            //vertexShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.vert");
+            //fragmentShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\particle.frag");
+            //geomShaderSource[0] = ManifestResourceLoader.LoadTextFile("Shaders\\main_shader.geom");
+            //textureShader.Create(gl, vertexShaderSource[0], fragmentShaderSource[0], geomShaderSource[0], null);
 
 
 
@@ -707,7 +707,7 @@ namespace IDALabOnWheels
             textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
             textureShader.SetUniform(GL, "sunLight.Ka", new vec3(1f, 1f, 1f));
             textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
-            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, 1f));
+            textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, 0f));
             textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f)); // disable specular light for the skybox
             textureShader.SetUniform(GL, "specLight.Ks", new vec3(1f, 1f, 1f));
             textureShader.SetUniform(GL, "specLight.Shininess", 50f);
