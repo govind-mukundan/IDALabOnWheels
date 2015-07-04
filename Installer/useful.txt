@@ -1,0 +1,7 @@
+- To automatically generate a list of components to include in the installer from a folder use HEAT.EXE
+
+.\heat.exe dir "D:\Freelance\EWB\IDALabOnWheels\heat-ip" -dr EWBSensorApp -cg FilesGroup -gg -g1 -sf -srd -var "var.ScrDir" -out "D:\Freelance\EWB\IDALabOnWheels\heat-ip\Heat.wxs"
+
+- Add the Components and ComponentGroup to the Product.wix
+- Add the ComponentGroup to the Features : <ComponentGroupRef Id="FilesGroup" />
+- In the project properties, configure the ScrDir variable to be the Debug and Release directory for Debug/release builds

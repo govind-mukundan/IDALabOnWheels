@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="EWB Sensor Board App" Language="1033" Version="!(bind.FileVersion.FILE_MainApplication)" Manufacturer="Engineers Without Borders Singapore" UpgradeCode="ebe00826-c224-4d3c-b51f-fb8176ddd98a">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." Schedule="afterInstallExecute"/>
+    <MediaTemplate EmbedCab="yes" />
+
+
+    <Feature Id="ProductFeature" Title="Installer" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="FilesGroup" />
+      <ComponentRef Id="CMP_EWBSensorAppShortcut" />
+    </Feature>
+  </Product>
+  
+      <!-- Installation UI Settings -->
+  <Fragment>
+      <UIRef Id="WixUI_Minimal" ></UIRef>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch REKA App" />
+    </Fragment>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="EWB Sensor App" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="DIR_EWBSensorAppShortcut" Name="EWB Sensor App" />
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+      <!-- <Component Id="ProductComponent"> -->
+      <!-- TODO: Insert files, registry keys, and other resources here. -->
+      <!-- </Component> -->
+    </ComponentGroup>
+      <!-- Property Settings -->
+    <Property Id="ARPCONTACT" Value="http://ewb-asia.sg/" ></Property> 
+    <Property Id="ARPURLINFOABOUT" Value="http://ewb-asia.sg/" ></Property>
+    <Property Id="ARPURLUPDATEINFO" Value="http://ewb-asia.sg/" ></Property>
+    <Icon Id="icon.ico" SourceFile="favicon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" ></Property>
+    <Property Id="ASSISTANCE_START_VIA_REGISTRY">1</Property>
+    
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Directory Id="dir06E2A75A9D4A38704D7945B85E04E459" Name="mesh" />
+      <Directory Id="dirE761C85626868FCE9C45CFF374435DB2" Name="skyboxes" />
+      <Directory Id="dirF5D9F0AEAEE9A1DC1352258B9DD20B3E" Name="textures" />
+    </DirectoryRef>
+        <DirectoryRef Id="DIR_EWBSensorAppShortcut">
+      <Component Id="CMP_EWBSensorAppShortcut" Guid="11553C55-6BA9-47CD-8406-5F902724BABF">
+        <Shortcut Id="EWBSensorAppShortcut"
+        Name="EWB Sensor App"
+        Description="Launch EWB Sensor"
+        Target="[INSTALLFOLDER]IDALabOnWheels.exe"
+        Icon="icon.ico"
+        />
+      <RemoveFolder Id="DIR_EWBSensorAppShortcut" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\Microsoft\EWB Sensor App" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      <Shortcut Id="UninstallShortcut" Name="Uninstall EWB Sensor App" Description="Uninstalls REKA App and all of its components" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+      </Component>
+    </DirectoryRef>
+  
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="FilesGroup">
+      <Component Id="cmp0F6EDEF8E1B9701871113B3CA86D50C9" Directory="INSTALLFOLDER" Guid="0C69EF2D-FCDC-4385-A838-19D6DDF6DDFF">
+        <File Id="fil37706477FE1E7E62287E6C14EB38FA7F" KeyPath="yes" Source="$(var.ScrDir)\1425972558_60814.ico" />
+      </Component>
+      <Component Id="cmp631F50636875C6B00336B91BB585BFE1" Directory="INSTALLFOLDER" Guid="A32C64E6-29D6-4C31-9EA9-0808D6BD7D23">
+        <File Id="fil3E8F37321BE774DBF5A479176F1F4100" KeyPath="yes" Source="$(var.ScrDir)\Assimp32.dll" />
+      </Component>
+      <Component Id="cmp4D9E738F87A0D0E4365E81833B33F281" Directory="INSTALLFOLDER" Guid="AEB553B7-9B20-428E-8566-0A1B52624725">
+        <File Id="fil2E5A50200F1A0BBA126D9AD3B34B2BEA" KeyPath="yes" Source="$(var.ScrDir)\Assimp64.dll" />
+      </Component>
+      <Component Id="cmp1E5C92952105316FD42AEFA696533D59" Directory="INSTALLFOLDER" Guid="812B2AA2-1684-442F-B083-666E98BD34FE">
+        <File Id="filD7E7A38F4FFA21A98DE176989B35DC93" KeyPath="yes" Source="$(var.ScrDir)\AssimpNet.dll" />
+      </Component>
+      <Component Id="cmp4113BBA40D7193E6283205A786F21869" Directory="INSTALLFOLDER" Guid="CB5ECFFB-8FC5-4CB3-AB11-911DB6F62F01">
+        <File Id="filB5A301799FA269FD9D4ED875A3A25421" KeyPath="yes" Source="$(var.ScrDir)\compass-dial.png" />
+      </Component>
+      <Component Id="cmpF3A0EC34E55CCA80BD56E8B615D107B8" Directory="INSTALLFOLDER" Guid="33E20039-5A5A-4606-BB43-76B5056891CF">
+        <File Id="fil746A72F8489BE1B301834EDD694FACDC" KeyPath="yes" Source="$(var.ScrDir)\GlmNet.dll" />
+      </Component>
+      <Component Id="cmpE778AC0BDC10440F491D2DFF56BBDF97" Directory="INSTALLFOLDER" Guid="195AD6E8-0CFF-4D6C-A08B-3307A1EBD8D0">
+        <File Id="FILE_MainApplication" KeyPath="yes" Source="$(var.ScrDir)\IDALabOnWheels.exe" />
+      </Component>
+      <Component Id="cmp61A88B1CD4B5B1828D615675541DB0A4" Directory="INSTALLFOLDER" Guid="A19B5E8E-CA0C-4228-82E5-CEBA05B6DCE6">
+        <File Id="fil54544C426746502F7016DB1710C5E132" KeyPath="yes" Source="$(var.ScrDir)\SharpGL.dll" />
+      </Component>
+      <Component Id="cmp62C4AABFAC29F3E0373BAC30492EFE54" Directory="INSTALLFOLDER" Guid="C8FEC36D-4BB5-4C5B-92B3-405898A9F0B2">
+        <File Id="fil16BCEC81F562DC663773F832853B5B82" KeyPath="yes" Source="$(var.ScrDir)\SharpGL.SceneGraph.dll" />
+      </Component>
+      <Component Id="cmp44F89852AC490C9A5BD8BE550FABB040" Directory="INSTALLFOLDER" Guid="DD75F483-B29A-42BE-933F-F9BD9A2FC5FB">
+        <File Id="fil55E03C63C3FD615A1D9C56F825C89291" KeyPath="yes" Source="$(var.ScrDir)\SharpGL.WPF.dll" />
+      </Component>
+      <Component Id="cmp547A56CE3EAE9A4404191E7B85F61462" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="BDE1D6A4-8E94-4A82-A5D1-DADC24F97297">
+        <File Id="fil0CD5984B6E73DB20485DE98C4509C288" KeyPath="yes" Source="$(var.ScrDir)\mesh\Assembly.STL" />
+      </Component>
+      <Component Id="cmp6A54B4568400FD3E9B0F5EDA35E83F61" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="A34BE6A4-B690-4495-8210-5596A01AA935">
+        <File Id="fil42CD7E53C303D59502D9871B9E2F1DD0" KeyPath="yes" Source="$(var.ScrDir)\mesh\simba.mtl" />
+      </Component>
+      <Component Id="cmp7F16CD74C244DB3232D59F2E00BAB9D1" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="E4D20FB3-5C16-4C77-A096-1EE99F3D9476">
+        <File Id="filD1C627322FD4BAF86EF0833B11F1F4AE" KeyPath="yes" Source="$(var.ScrDir)\mesh\simba.obj" />
+      </Component>
+      <Component Id="cmp5B0C369D9C56BEB7252B85D9289B0C08" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="8F7123DB-8091-4CEC-BB05-89B3B3A4E60B">
+        <File Id="filFDDE319FC7DB660C1AFDCA5AA512366B" KeyPath="yes" Source="$(var.ScrDir)\mesh\Wolf.mtl" />
+      </Component>
+      <Component Id="cmp774E851B20E7A49D3BB5351CD1F3BA8A" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="58379D03-1A6C-4835-A0DF-7623DAAEA424">
+        <File Id="fil09BCD8FB73EBBD17ACB0CB36D74F664C" KeyPath="yes" Source="$(var.ScrDir)\mesh\Wolf.obj" />
+      </Component>
+      <Component Id="cmpE5373761FA9D59AC51443CA47779A752" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="123F99C4-17CD-47B2-978A-048F1523FAA7">
+        <File Id="fil1D887225AE739970AB49689D9385EDE1" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\180d7d41.png" />
+      </Component>
+      <Component Id="cmpBAB9FA5D02EFCCF996ABE8D01A1D7702" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="C0AF546F-C73B-47FD-82AF-786887C34BD9">
+        <File Id="fil60195D5489853FC91F9B47237ED28BEA" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\5c817acd.png" />
+      </Component>
+      <Component Id="cmp46F11B84A86FACBF07957810B2B25C69" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="FE98ED82-103D-48BD-84DD-841982013957">
+        <File Id="filE1CED4422B20EEF9E4D551CB3EDACE31" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_body_D.png" />
+      </Component>
+      <Component Id="cmp840EEE464D32081658D6058CB53BF4FE" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="EE4B6A62-2024-40DD-AF62-82C03A9D52B5">
+        <File Id="fil1EAF047540CCEC92BD0756E0F8B16294" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_body_N.png" />
+      </Component>
+      <Component Id="cmp65215CC9E6530E046BE1DBBE86FD6386" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="E262A6FA-844E-4097-B219-969C984ABD38">
+        <File Id="filD021B0E7451AA993FE913B29DC38409B" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_body_S.png" />
+      </Component>
+      <Component Id="cmp4B636B1A5B33EBE1F30D60182AB4AD8F" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="CF0259A7-A1BA-44FD-8576-E0457B73E8B4">
+        <File Id="filAE317FF360AB681AF9F41896141D6F20" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_fur_D.png" />
+      </Component>
+      <Component Id="cmpD52408B24E4B1ABDF291AA34B34A45C4" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="16768DD8-90DC-4F47-A7CE-D0388ED9D1EF">
+        <File Id="fil5F07AF7C281645158E1EF4961C1F0847" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_fur_N.png" />
+      </Component>
+      <Component Id="cmp1A483E8D5E9D5F0460D953F2B378CD08" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="0D886285-D439-42C0-8142-2F4EB0B5D40C">
+        <File Id="fil78553CA0AA15F2DDA6C8B76A560D59CF" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_fur_S.png" />
+      </Component>
+      <Component Id="cmpE4A3930C41E9D43A3160452A914FE37B" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="733F4A96-E2B9-4BEE-921A-E746ED932CDA">
+        <File Id="fil22779A8999168ADEACE8A087B245B51D" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_legs_D.png" />
+      </Component>
+      <Component Id="cmpB3CD1FA4333915EE5851E7A2CA72171E" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="5569C423-45A7-45CB-AB1C-FBCA702F0386">
+        <File Id="filFCC403928F04EF158E8D8075B6A2F497" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_legs_N.png" />
+      </Component>
+      <Component Id="cmpB739F233446D808159A296462AACAF7D" Directory="dir70FEBBE434AED539514137EA36BD9660" Guid="509722D7-8380-4F5B-8327-5637C80326E1">
+        <File Id="fil86DCF9A9AE1C02C174C274A2BBA5DE0F" KeyPath="yes" Source="$(var.ScrDir)\mesh\texture\Wolf_legs_S.png" />
+      </Component>
+      <Component Id="cmpDED4471509F7DA33A99A74CBD204775B" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="2A4CEE4F-58FC-42D7-99E4-CFC5963679E5">
+        <File Id="fil65595B69100057CAF9E5AF77D91BA854" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\back.jpg" />
+      </Component>
+      <Component Id="cmpAFB62A308DFC972F7E4631B9852768AC" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="DEBAC756-2ACB-4DAD-BEE3-1C30FEDB039E">
+        <File Id="fil5DD324CF5F74229FE68A50D890BA3DEB" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\down.jpg" />
+      </Component>
+      <Component Id="cmpB4F099405E4D4FD2E4568F9D884913A5" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="1A73D858-CB78-453B-8BEC-66C255D8A696">
+        <File Id="fil25F8C413DC3D72BC3BFA31999E294E6B" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\front.jpg" />
+      </Component>
+      <Component Id="cmp368BEB0620F986CDD20B88D7061E1970" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="9C3CFADC-985A-4794-913B-23F854D00968">
+        <File Id="fil40E62E6D4640B4502F1280836FEA8AFF" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\left.jpg" />
+      </Component>
+      <Component Id="cmp1D63AD87E0D4522F284538FAC0A0AC99" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="F9243FA0-6B82-4217-8BC9-5F980F9F6252">
+        <File Id="filFD7955D57A44D6E9F04079D56D9DC98C" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\right.jpg" />
+      </Component>
+      <Component Id="cmp0E51D6292AE6069395B8B5683ABB1EF1" Directory="dirDD4DC760C97275A59E06ED09AEA97189" Guid="0F9B0B8F-7363-415F-8DBC-7920324D8779">
+        <File Id="fil2F6B88F05A526F36879DF55DFE2FE712" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\ef\up.jpg" />
+      </Component>
+      <Component Id="cmp6AB260A6439C421121551A5139ADF187" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="262D18B5-365D-4AEA-A3AD-367C780F3069">
+        <File Id="filD4AA8EC0681FCCB4C1143F5F01F72691" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\back.jpg" />
+      </Component>
+      <Component Id="cmp9FB882B0646525108D96210C175FD667" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="D1221A65-F9F5-428D-AD4A-3ED735CE2334">
+        <File Id="fil35F4DBA1AAA9D07B973E7CA233135741" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\down.jpg" />
+      </Component>
+      <Component Id="cmp34270EB07BDA1F786F1ED341C86F2D8F" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="17B11507-B594-4008-9450-33202D36123D">
+        <File Id="fil3DC40D5673D435E5BC83A5657A7D5B97" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\front.jpg" />
+      </Component>
+      <Component Id="cmp712D7B92A0080BB7BDF24D2C1D9AE527" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="23D936E6-6E56-4C5C-AE80-5F44D1CE85BE">
+        <File Id="fil401ED0D7320101ED90D74FE8AB84188B" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\left.jpg" />
+      </Component>
+      <Component Id="cmpAEAAA7253B1F286048E4830BA6D0B39E" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="5616E17E-8036-4A8D-931B-3118D1888AB5">
+        <File Id="filB4E1CF9F1F8A2385E97C688FC26B03E3" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\right.jpg" />
+      </Component>
+      <Component Id="cmpF65E5DA26FC24BB88C61711A9DF722A1" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="8F11A19E-FC70-4CF7-9307-F1926A2C663C">
+        <File Id="fil9E4A614E5B6941CC4F9B3F8EF5045ACF" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\up.jpg" />
+      </Component>
+      <Component Id="cmp6876ED5C55F77260F190F8B6292399AB" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="16A989F5-8A41-472B-A40A-0A45CFE358A7">
+        <File Id="fil176F34551B8F8DA4556C715191D2C4AC" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_bk.jpg" />
+      </Component>
+      <Component Id="cmp76BCE398FFE4F2B378F805C1C5151BA6" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="0C7D608E-564B-4328-8B5E-D94B73A79893">
+        <File Id="filE0C796A75C715549015B5CC13197E859" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_dn.jpg" />
+      </Component>
+      <Component Id="cmp771A3860EF43E391EA7D4EE47EA8B762" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="5729C02C-124D-49A6-80BC-5EF4CC47A938">
+        <File Id="filE72AD47C60000025F48335983887ECD7" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_ft.jpg" />
+      </Component>
+      <Component Id="cmp874DBB70948CF6DAC2471CA20F183F09" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="6D96810B-BCCD-4167-8B5F-6FADE6DB061D">
+        <File Id="filC99BACAC00187BACF9CCE1AF7F820491" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_lf.jpg" />
+      </Component>
+      <Component Id="cmp6E8497A4AC8385A7037E04204CEB7741" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="A6AC6410-10E4-401D-89AE-08FEA18F605F">
+        <File Id="fil497DA7B1B40EDA29622325C9155BEE2D" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_rt.jpg" />
+      </Component>
+      <Component Id="cmp91EF3A31CCFB7781B0B61AF1674A29BC" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="25208958-C58C-44D8-86A0-9C04BECF16DC">
+        <File Id="fil957183442C81A27B0E060118585210DA" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_up.jpg" />
+      </Component>
+      <Component Id="cmp21AA2C5BD941EA0DC806474B775509DA" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="C5CEB427-F4BE-478E-B66E-7E1C2BBC2C83">
+        <File Id="fil3D6B462823CE5FDC70E970B02AE330F6" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_bk.jpg" />
+      </Component>
+      <Component Id="cmp079FF6E72E01700F04B2DA7BE4F0FCC5" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="76715FD5-653E-4756-A160-3C9F97ECC474">
+        <File Id="filF54952F6C61319E2E48045F4714AC9F6" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_dn.jpg" />
+      </Component>
+      <Component Id="cmpFB89B7DE96037543E2D16905A5B0AEE7" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="F3014522-119C-4919-ABBD-D15733531167">
+        <File Id="fil90692B625D2CF7AC0EF5AB1AAE27C8D3" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_ft.jpg" />
+      </Component>
+      <Component Id="cmp6461CCE58950558B95317CFEBBDB4CCE" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="07CB73D7-43ED-4794-A2E5-2BC805B9EBB0">
+        <File Id="fil91A9C9708E97579D95DDC03A1D76B994" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_lf.jpg" />
+      </Component>
+      <Component Id="cmp58592BBF39D3FD95E71A83E2BEDECB88" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="775A1A0F-CEFB-49FB-B5F4-8A266D8F6446">
+        <File Id="fil8ACBF04F9114885C718D95C4415ABEF3" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_rt.jpg" />
+      </Component>
+      <Component Id="cmp471E49C4797F52345855A16F6D232E0F" Directory="dir11CB52C14D994AB3F98740817C98FF59" Guid="6E88DD0A-4C9E-42D0-A437-D92D9C25E38C">
+        <File Id="filE42DE1938334745D0DBE6A0E603A7821" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajsundown\jajsundown1_up.jpg" />
+      </Component>
+      <Component Id="cmpD3EF894651AA2F0AEDDAE118B0B359EF" Directory="dirF5D9F0AEAEE9A1DC1352258B9DD20B3E" Guid="2632AE9B-FE9B-40B2-BA9E-9744B618B62A">
+        <File Id="fil5C058C98BAC63C8D1C281743B64C3F1D" KeyPath="yes" Source="$(var.ScrDir)\textures\compass-arrow.png" />
+      </Component>
+      <Component Id="cmp9FF573F952A3DD1D4BC9C757D9DFC58B" Directory="dirF5D9F0AEAEE9A1DC1352258B9DD20B3E" Guid="7F15E277-B8E5-432A-91FB-9249CFEDFF13">
+        <File Id="filEECAD3DA25D13407DE80E5C46AD424CA" KeyPath="yes" Source="$(var.ScrDir)\textures\compass-dial - Copy.png" />
+      </Component>
+      <Component Id="cmpFA4E18DA12F904882DF966B04329CA89" Directory="dirF5D9F0AEAEE9A1DC1352258B9DD20B3E" Guid="F3D8FB3F-1E14-4392-BE8B-9E3C5673BBA0">
+        <File Id="fil5912A4CF02AED1F541D8855AF7008E7F" KeyPath="yes" Source="$(var.ScrDir)\textures\compass-dial.png" />
+      </Component>
+      <Component Id="cmp8D9F53F9088464C45000BB33C49F91FD" Directory="dirF5D9F0AEAEE9A1DC1352258B9DD20B3E" Guid="00D1358B-3B14-4C1B-8A47-5452D98D3226">
+        <File Id="fil63DF2CA87C35A02A85B1C3286B379796" KeyPath="yes" Source="$(var.ScrDir)\textures\compass_dial.png" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dirE761C85626868FCE9C45CFF374435DB2">
+      <Directory Id="dir00032B62D4781726C869F6E1FA9E5167" Name="field" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dirE761C85626868FCE9C45CFF374435DB2">
+      <Directory Id="dir11CB52C14D994AB3F98740817C98FF59" Name="jajsundown" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir06E2A75A9D4A38704D7945B85E04E459">
+      <Directory Id="dir70FEBBE434AED539514137EA36BD9660" Name="texture" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dirE761C85626868FCE9C45CFF374435DB2">
+      <Directory Id="dir9CC8227C21650E8FAE48935760BACEA5" Name="jajlands1" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dirE761C85626868FCE9C45CFF374435DB2">
+      <Directory Id="dirDD4DC760C97275A59E06ED09AEA97189" Name="ef" />
+    </DirectoryRef>
+  </Fragment>
+</Wix>

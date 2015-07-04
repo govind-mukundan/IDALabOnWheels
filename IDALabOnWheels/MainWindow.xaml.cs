@@ -23,6 +23,7 @@ using DR = System.Drawing;
 using System.ComponentModel;
 using System.Windows.Media.Animation;
 using MD = System.Windows.Media;
+using System.Reflection;
 
 namespace IDALabOnWheels
 {
@@ -117,6 +118,7 @@ namespace IDALabOnWheels
         public MainWindow()
         {
             InitializeComponent();
+            this.Title += " v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
             // Setup legend colors for plot
             CheckBox item = (CheckBox)LayoutRoot.FindName("AccX");
             item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_ACC_X.A, COLOR_ACC_X.R, COLOR_ACC_X.G, COLOR_ACC_X.B));

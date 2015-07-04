@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ports="clr-namespace:System.IO.Ports;assembly=System"
         xmlns:local="clr-namespace:IDALabOnWheels"
-        Title="IDA Lab On Wheels" Height="634" Width="1067" 
+        Title="EWB Sensor App" Height="634" Width="1067" 
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
-        Icon="1425972558_60814.ico"
+        Icon="favicon.ico"
         Closed="Window_Closed"
         WindowState="Maximized">
     <Window.DataContext>

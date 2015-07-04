@@ -5,6 +5,11 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDALabOnWheels", "IDALabOnWheels\IDALabOnWheels.csproj", "{0DF52E36-AF0D-4D1A-B607-1BDBB2238510}"
 EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "Installer\Installer.wixproj", "{5369220D-EE79-4468-9B7C-0C3C1B2822EB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0DF52E36-AF0D-4D1A-B607-1BDBB2238510} = {0DF52E36-AF0D-4D1A-B607-1BDBB2238510}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +20,10 @@ Global
 		{0DF52E36-AF0D-4D1A-B607-1BDBB2238510}.Debug|x86.Build.0 = Debug|x86
 		{0DF52E36-AF0D-4D1A-B607-1BDBB2238510}.Release|x86.ActiveCfg = Release|x86
 		{0DF52E36-AF0D-4D1A-B607-1BDBB2238510}.Release|x86.Build.0 = Release|x86
+		{5369220D-EE79-4468-9B7C-0C3C1B2822EB}.Debug|x86.ActiveCfg = Debug|x86
+		{5369220D-EE79-4468-9B7C-0C3C1B2822EB}.Debug|x86.Build.0 = Debug|x86
+		{5369220D-EE79-4468-9B7C-0C3C1B2822EB}.Release|x86.ActiveCfg = Release|x86
+		{5369220D-EE79-4468-9B7C-0C3C1B2822EB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
