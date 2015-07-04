@@ -14,7 +14,7 @@
     <Window.Resources>
         <ObjectDataProvider ObjectType="{x:Type ports:SerialPort}" MethodName="GetPortNames" x:Key="portNames"/>
     </Window.Resources>
-    <Grid>
+    <Grid Name="LayoutRoot">
         <!-- The OpenGL control provides a OpenGL drawing surface. -->
         <sharpGL:OpenGLControl 
             Name="openGLControl" OpenGLDraw="openGLControl_OpenGLDraw" 
@@ -41,7 +41,25 @@
         <Button Content="Start" HorizontalAlignment="Left" Margin="573,13,0,0" VerticalAlignment="Top" Width="75" Height="34" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding Path=ActivityIsEnabled}"/>
         <TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="0,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="122" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
         <TextBlock x:Name="DispMessage" HorizontalAlignment="Left" Margin="23,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="87" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=DisplayMessage}" FontFamily="Jokerman" Foreground="Red"/>
-        <Label Content="{Binding Path=Temperature}" HorizontalAlignment="Left" Margin="851,8,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
-        <Label Content="{Binding Path=Altitude}" HorizontalAlignment="Left" Margin="851,34,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
+        <Label Content="{Binding Path=Temperature}" HorizontalAlignment="Left" Margin="687,10,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
+        <Label Content="{Binding Path=Altitude}" HorizontalAlignment="Left" Margin="687,31,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
+        <GroupBox Header="" HorizontalAlignment="Right" VerticalAlignment="Top" Width="323" Height="80" Margin="0,-5,0,0">
+            <Grid HorizontalAlignment="Left" Height="57" VerticalAlignment="Top" Width="313" Margin="0,0,-2,0">
+                <Label Content="Accelerometer" HorizontalAlignment="Left" Margin="5,-10,0,0" VerticalAlignment="Top" Height="30"/>
+                <CheckBox Content="Acc X"  x:Name="AccX" HorizontalAlignment="Left" Margin="15,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccXDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Acc Y"  x:Name="AccY" HorizontalAlignment="Left" Margin="15,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccYDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Acc Z"  x:Name="AccZ" HorizontalAlignment="Left" Margin="15,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccZDisp, Mode=TwoWay}"/>
+
+                <Label Content="Magnetometer" HorizontalAlignment="Left" Margin="100,-10,0,0" VerticalAlignment="Top" />
+                <CheckBox x:Name="MagX" Content="Mag X" HorizontalAlignment="Left" Margin="110,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagXDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Mag Y"  x:Name="MagY" HorizontalAlignment="Left" Margin="110,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagYDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Mag Z"  x:Name="MagZ" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagZDisp, Mode=TwoWay}"/>
+
+                <Label Content="Gyroscope" HorizontalAlignment="Left" Margin="200,-10,0,0" VerticalAlignment="Top" Height="34"/>
+                <CheckBox Content="Yaw"  x:Name="Yaw" HorizontalAlignment="Left" Margin="210,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=RollDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Pitch"  x:Name="Pitch" HorizontalAlignment="Left" Margin="210,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=PitchDisp, Mode=TwoWay}"/>
+                <CheckBox Content="Roll"  x:Name="Roll" HorizontalAlignment="Left" Margin="210,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=YawDisp, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>

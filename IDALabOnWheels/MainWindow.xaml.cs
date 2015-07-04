@@ -22,6 +22,7 @@ using System.Diagnostics;
 using DR = System.Drawing;
 using System.ComponentModel;
 using System.Windows.Media.Animation;
+using MD = System.Windows.Media;
 
 namespace IDALabOnWheels
 {
@@ -105,7 +106,7 @@ namespace IDALabOnWheels
         DR.Color COLOR_MAG_Y = DR.Color.Khaki;
         DR.Color COLOR_MAG_Z = DR.Color.Yellow;
         DR.Color COLOR_GYR_X = DR.Color.Green;
-        DR.Color COLOR_GYR_Y = DR.Color.Lavender;
+        DR.Color COLOR_GYR_Y = DR.Color.DarkMagenta;
         DR.Color COLOR_GYR_Z = DR.Color.Blue;
 
 
@@ -116,6 +117,28 @@ namespace IDALabOnWheels
         public MainWindow()
         {
             InitializeComponent();
+            // Setup legend colors for plot
+            CheckBox item = (CheckBox)LayoutRoot.FindName("AccX");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_ACC_X.A, COLOR_ACC_X.R, COLOR_ACC_X.G, COLOR_ACC_X.B));
+            item = (CheckBox)LayoutRoot.FindName("AccY");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_ACC_Y.A, COLOR_ACC_Y.R, COLOR_ACC_Y.G, COLOR_ACC_Y.B));
+            item = (CheckBox)LayoutRoot.FindName("AccZ");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_ACC_Z.A, COLOR_ACC_Z.R, COLOR_ACC_Z.G, COLOR_ACC_Z.B));
+
+            item = (CheckBox)LayoutRoot.FindName("MagX");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_MAG_X.A, COLOR_MAG_X.R, COLOR_MAG_X.G, COLOR_MAG_X.B));
+            item = (CheckBox)LayoutRoot.FindName("MagY");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_MAG_Y.A, COLOR_MAG_Y.R, COLOR_MAG_Y.G, COLOR_MAG_Y.B));
+            item = (CheckBox)LayoutRoot.FindName("MagZ");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_MAG_Z.A, COLOR_MAG_Z.R, COLOR_MAG_Z.G, COLOR_MAG_Z.B));
+
+            item = (CheckBox)LayoutRoot.FindName("Yaw");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_GYR_X.A, COLOR_GYR_X.R, COLOR_GYR_X.G, COLOR_GYR_X.B));
+            item = (CheckBox)LayoutRoot.FindName("Pitch");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_GYR_Y.A, COLOR_GYR_Y.R, COLOR_GYR_Y.G, COLOR_GYR_Y.B));
+            item = (CheckBox)LayoutRoot.FindName("Roll");
+            item.Foreground = new SolidColorBrush(MD.Color.FromArgb(COLOR_GYR_Z.A, COLOR_GYR_Z.R, COLOR_GYR_Z.G, COLOR_GYR_Z.B));
+
             MainVM.PropertyChanged += Event_PropertyChanged;
             MainVM.SetupDefaultGUI();
             cmbxPorts.SelectedIndex = Properties.Settings.Default.SelectedPort;
@@ -322,11 +345,11 @@ namespace IDALabOnWheels
 
             col = new DR.Color[] { COLOR_MAG_X, COLOR_MAG_Y, COLOR_MAG_Z };
             id = new string[] { "magX", "magY", "magZ" };
-            RawMagPlot.Initialize(gl, col, -128, 128, id, 3);
+            RawMagPlot.Initialize(gl, col, -256, 256, id, 3);
 
             col = new DR.Color[] { COLOR_GYR_X, COLOR_GYR_Y, COLOR_GYR_Z };
             id = new string[] { "gyroX", "gyroY", "gyroZ" };
-            RawGyroPlot.Initialize(gl, col, -512, 512, id, 3);
+            RawGyroPlot.Initialize(gl, col, -128, 128, id, 3);
         }
 
         float rotation2 = 0;
@@ -547,9 +570,12 @@ namespace IDALabOnWheels
         void DrawPlot(OpenGL GL)
         {
             simpleShader.Bind(GL);
-            RawAccPlot.Render(GL, simpleShader);
-            RawMagPlot.Render(GL, simpleShader);
-            RawGyroPlot.Render(GL, simpleShader);
+            bool[] acc = new bool[] { MainVM.AccXDisp, MainVM.AccYDisp, MainVM.AccZDisp };
+            bool[] mag = new bool[] { MainVM.MagXDisp, MainVM.MagYDisp, MainVM.MagZDisp };
+            bool[] gyr = new bool[] { MainVM.RollDisp, MainVM.PitchDisp, MainVM.YawDisp};
+            RawAccPlot.Render(GL, simpleShader, acc);
+            RawMagPlot.Render(GL, simpleShader, mag);
+            RawGyroPlot.Render(GL, simpleShader, gyr);
             simpleShader.Unbind(GL);
         }
 

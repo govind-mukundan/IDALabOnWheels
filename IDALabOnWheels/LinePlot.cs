@@ -22,11 +22,16 @@ namespace IDALabOnWheels
         VertexBuffer[] plotVBO;
         vec3[][] _buffer;
         vec3[][] _dummyColors;
+        vec3[] _margin;
+        vec3[] _marginColor;
         int _bufferIndex;
-        int C_BUFFER_SIZE = 512;
+        int C_BUFFER_SIZE = 256;
         string[] _textureID;
         bool _debug = true;
         int _axes;
+        // Since the viewport doesnt actually occupy the whole screen, we scale it by a factor less than .5
+        // Note that this is fixed and so will not maintain ration if the screen is resized
+        float C_DISP_SCREEN = 0.5f;
 
         /// <summary>
         /// Bounds specify the bounds in device independent coordinates of the plot. 
@@ -46,19 +51,31 @@ namespace IDALabOnWheels
             _axes = axes;
             _buffer = new vec3[axes][];
             _dummyColors = new vec3[axes][];
+            _margin = new vec3[4];
+            _marginColor = new vec3[4];
             plotVBO = new VertexBuffer[2];
 
-            for (int j = 0; j < axes; j++)
+            // vertices for margin
+            _margin[0] = new vec3(-1, -1, 0);
+            _margin[1] = new vec3(-1, 0, 0);
+            _margin[2] = new vec3(0, 0, 0);
+            _margin[3] = new vec3(0, -1, 0);
+            for (int i = 0; i < _margin.Length; i++)
             {
-                _buffer[j] = new vec3[C_BUFFER_SIZE];
-                _dummyColors[j] = new vec3[C_BUFFER_SIZE];
-                // Initialize the X values range from -1 to -0.5
-                for (int i = 0; i < C_BUFFER_SIZE; i++)
-                {
-                    _buffer[j][i].x = 0.5f * (i - 0) / (C_BUFFER_SIZE - 0) - 1;
-                    _dummyColors[j][i] = SharpGLEx.GetColor(color[j]);
-                }
+                _marginColor[i] = SharpGLEx.GetColor(DR.Color.White);
             }
+
+                for (int j = 0; j < axes; j++)
+                {
+                    _buffer[j] = new vec3[C_BUFFER_SIZE];
+                    _dummyColors[j] = new vec3[C_BUFFER_SIZE];
+                    // Initialize the X values range from -1 to -0.5
+                    for (int i = 0; i < C_BUFFER_SIZE; i++)
+                    {
+                        _buffer[j][i].x = 1f * (i - 0) / (C_BUFFER_SIZE - 0) - 1;
+                        _dummyColors[j][i] = SharpGLEx.GetColor(color[j]);
+                    }
+                }
             _bufferIndex = 0;
 
             _textureID = ID;
@@ -86,6 +103,7 @@ namespace IDALabOnWheels
 
         public void FillBuffer(float[] data)
         {
+            int len = 0;
             if (_bufferIndex + data.Length >= C_BUFFER_SIZE) // data is going to roll over?
                 _bufferIndex = 0;
 
@@ -98,37 +116,51 @@ namespace IDALabOnWheels
            // Debug.WriteLineIf(_debug, "AccZ = " + data[0].ToString());
         }
 
+        /// <summary>
+        /// Fill buffer with data from 3 axes
+        /// </summary>
+        /// <param name="data"></param>
         public void FillBuffer(vec3[] data)
         {
             if (_bufferIndex + data.Length >= C_BUFFER_SIZE) // data is going to roll over?
                 _bufferIndex = 0;
 
-            // Since the viewport doesnt actually occupy the whole screen, we scale it by a factor less than .5
-            // Note that this is fixed and so will not maintain ration if the screen is resized
-            float C_DISP_SCREEN = 0.4f;
             // Normalize the data with respect to the range [-1,1] and then shift it into the bounds
             for (int i = 0; i < data.Length; i++)
             {
-                _buffer[0][_bufferIndex].y = C_DISP_SCREEN * (2.0f * (data[i].x - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 1) - C_DISP_SCREEN;
-                _buffer[1][_bufferIndex].y = C_DISP_SCREEN * (2.0f * (data[i].y - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 1) - C_DISP_SCREEN;
-                _buffer[2][_bufferIndex].y = C_DISP_SCREEN * (2.0f * (data[i].z - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 1) - C_DISP_SCREEN;
+                _buffer[0][_bufferIndex].y =  (-1.0f * (data[i].x - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 0) ;
+                _buffer[1][_bufferIndex].y =  (-1.0f * (data[i].y - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 0) ;
+                _buffer[2][_bufferIndex].y = (-1.0f * (data[i].z - C_MIN_LSB) / (C_MAX_LSB - C_MIN_LSB) - 0) ;
                 _bufferIndex++;
             }
-
-            // Debug.WriteLineIf(_debug, "AccZ = " + data[0].ToString());
         }
 
-        public void Render(OpenGL GL,  GShaderProgram shader)
+        public void Render(OpenGL GL,  GShaderProgram shader, bool[] enabled)
         {
+            // don't draw margin if everything is OFF
+            if (enabled[0] == false && enabled[1] == false && enabled[2] == false)
+                return;
+
+            plotVAO.Bind(GL);
             for (int i = 0; i < _axes; i++)
             {
-                plotVAO.Bind(GL);
+                if (enabled[i] == false) continue;
+
                 plotVBO[0].Bind(GL);
                 plotVBO[0].SetData(GL, (uint)shader.GetAttributeID(GL, "vPosition"), _buffer[i], false, 3);
                 plotVBO[1].Bind(GL);
                 plotVBO[1].SetData(GL, (uint)shader.GetAttributeID(GL, "vColor"), _dummyColors[i], false, 3);
                 GL.DrawArrays(OpenGL.GL_LINE_STRIP, 0, _bufferIndex);
             }
+
+            plotVBO[0].Bind(GL);
+            plotVBO[0].SetData(GL, (uint)shader.GetAttributeID(GL, "vPosition"), _margin, false, 3);
+            plotVBO[1].Bind(GL);
+            plotVBO[1].SetData(GL, (uint)shader.GetAttributeID(GL, "vColor"), _marginColor, false, 3);
+            GL.LineStipple(1, 0x00FF);
+            GL.Enable(OpenGL.GL_LINE_STIPPLE);
+            GL.DrawArrays(OpenGL.GL_LINE_STRIP, 0, 4);// X - Minor Grid
+            GL.Disable(OpenGL.GL_LINE_STIPPLE);
             plotVAO.Unbind(GL);
         }
 

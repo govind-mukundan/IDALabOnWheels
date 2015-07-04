@@ -490,7 +490,7 @@ namespace IDALabOnWheels
                                 Debug.WriteLineIf(_debug, "MSP_ATTITUDE");
                                 break;
                             case MSP_ALTITUDE:
-                                AltitudeQ.Add(Int32ToF(bytes[2], bytes[3],bytes[4],bytes[5]));
+                                AltitudeQ.Add(Int32ToF(bytes[2], bytes[3], bytes[4], bytes[5]) / 100);
                                 TemperatureQ.Add(Int32ToF(bytes[8], bytes[9], bytes[10], bytes[11]) / 100);
                                 Debug.WriteLineIf(_debug, "MSP_ALTITUDE");
                                 break;

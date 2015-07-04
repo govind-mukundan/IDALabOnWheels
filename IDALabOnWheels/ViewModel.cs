@@ -85,6 +85,32 @@ namespace IDALabOnWheels
         private string temperature;
         public string Temperature { get { return temperature; } set { temperature = "Temperature: " + value + "°C"; NotifyPropertyChanged("Temperature"); } }
 
+        private bool accX;
+        public bool AccXDisp { get { return accX; } set { accX = value; NotifyPropertyChanged("AccXDisp"); } }
+
+        private bool accY;
+        public bool AccYDisp { get { return accY; } set { accY = value; NotifyPropertyChanged("AccYDisp"); } }
+
+        private bool accZ;
+        public bool AccZDisp { get { return accZ; } set { accZ = value; NotifyPropertyChanged("AccZDisp"); } }
+
+        private bool magX;
+        public bool MagXDisp { get { return magX; } set { magX = value; NotifyPropertyChanged("MagXDisp"); } }
+
+        private bool magY;
+        public bool MagYDisp { get { return magY; } set { magY = value; NotifyPropertyChanged("MagYDisp"); } }
+
+        private bool magZ;
+        public bool MagZDisp { get { return magZ; } set { magZ = value; NotifyPropertyChanged("MagZDisp"); } }
+
+        private bool roll;
+        public bool RollDisp { get { return roll; } set { roll = value; NotifyPropertyChanged("RollDisp"); } }
+
+        private bool pitch;
+        public bool PitchDisp { get { return pitch; } set { pitch = value; NotifyPropertyChanged("PitchDisp"); } }
+
+        private bool yaw;
+        public bool YawDisp { get { return yaw; } set { yaw = value; NotifyPropertyChanged("YawDisp"); } }
 
         /// <summary>
         /// Default settings for the View Model
