@@ -158,6 +158,12 @@ namespace IDALabOnWheels
         const byte MSP_ACC_CALIBRATION = 205;
         const byte MSP_MAG_CALIBRATION = 206;
 
+        // We want to aligh the model with the position of the board in the real world.
+        // When the board boots up, it gives you the neading to north, this angle must be offset in the figure to compensate the 
+        // orientation of the board
+        public float InitialHeading;
+        bool _init;
+
         SerialPortAdapter _comInterface;
 
         // Queues for all the sensor data
@@ -191,6 +197,7 @@ namespace IDALabOnWheels
             _currentState = new State();
             _stopCommunication = false;
             Task task = Task.Factory.StartNew(() => CommThread());
+            _init = true;
         }
 
         public void Stop()
@@ -488,6 +495,11 @@ namespace IDALabOnWheels
                             case MSP_ATTITUDE:
                                 AttitudeQ.Add(new Attitude(Int16ToF(bytes[2], bytes[3]) / 10, Int16ToF(bytes[4], bytes[5]) / 10, Int16ToF(bytes[6], bytes[7])));
                                 Debug.WriteLineIf(_debug, "MSP_ATTITUDE");
+                                if (_init)
+                                {
+                                    InitialHeading = Int16ToF(bytes[6], bytes[7]);
+                                    _init = false;
+                                }
                                 break;
                             case MSP_ALTITUDE:
                                 AltitudeQ.Add(Int32ToF(bytes[2], bytes[3], bytes[4], bytes[5]) / 100);

@@ -30,15 +30,15 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Content="_Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="98" Click="btnConnect_Click" x:Name="btnConnect" IsEnabled="{Binding Path=BTConnectIsEnabled}" Grid.Column="2"/>
-            <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="92" ItemsSource="{Binding Source={StaticResource portNames}}" SelectedIndex="0" x:Name="cmbxPorts" Grid.Column="1" Grid.Row="0" RenderTransformOrigin="-1.033,0.455"/>
-            <Button Content="_Start" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="293" Click="btnStart_Click" x:Name="btnStartStop" IsEnabled="{Binding Path=StartStopIsEnabled}" Height="25" Grid.ColumnSpan="3"/>
-            <Label Content="Select COM Port" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Grid.Column="0" Grid.Row="0"/>
+            <Button Content="_Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" Click="btnConnect_Click" x:Name="btnConnect" IsEnabled="{Binding Path=BTConnectIsEnabled}" Margin="0,28,0,0" Grid.ColumnSpan="2" Height="30" Grid.RowSpan="2"/>
+            <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="92" ItemsSource="{Binding Source={StaticResource portNames}}" SelectedIndex="0" x:Name="cmbxPorts" Grid.Row="0" RenderTransformOrigin="-1.033,0.455" Grid.ColumnSpan="2" Margin="67,2,0,0"/>
+            <Button Content="_Start" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="btnStart_Click" x:Name="btnStartStop" IsEnabled="{Binding Path=StartStopIsEnabled}" Height="55" Grid.Column="2" Margin="10,0,0,0" Grid.RowSpan="2"/>
+            <Label Content="COM Port" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Grid.Column="0" Grid.Row="0"/>
         </Grid>
         <CheckBox Content="Rotate World" HorizontalAlignment="Left" Margin="329,13,0,0" VerticalAlignment="Top" Name="cbSimulate" Click="cbSimulate_Click" IsChecked="{Binding Path=RotateWorld, Mode=TwoWay}"/>
         <RadioButton Content="Static Activity" HorizontalAlignment="Left" Margin="451,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StaticActivity, Mode=TwoWay}"/>
         <RadioButton Content="Dynamic Activity" HorizontalAlignment="Left" Margin="451,31,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DynamicActivity, Mode=TwoWay}"/>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="573,13,0,0" VerticalAlignment="Top" Width="75" Height="34" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding Path=ActivityIsEnabled}"/>
+        <Button Content="Start" HorizontalAlignment="Left" Margin="573,10,0,0" VerticalAlignment="Top" Width="75" Height="55" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding Path=ActivityIsEnabled}"/>
         <TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="0,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="122" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
         <TextBlock x:Name="DispMessage" HorizontalAlignment="Left" Margin="23,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="87" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=DisplayMessage}" FontFamily="Jokerman" Foreground="Red"/>
         <Label Content="{Binding Path=Temperature}" HorizontalAlignment="Left" Margin="687,10,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>

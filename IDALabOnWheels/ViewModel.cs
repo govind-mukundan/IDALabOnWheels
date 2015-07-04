@@ -119,7 +119,7 @@ namespace IDALabOnWheels
         {
             StaticActivity = true; // also sets up default model as E100LP
             Lead1 = true;
-            ActivityIsEnabled = true;
+            ActivityIsEnabled = false;
             rotateWorld = false;
             NotchON = true;
             DisplayMessage = "Click Start to begin!";

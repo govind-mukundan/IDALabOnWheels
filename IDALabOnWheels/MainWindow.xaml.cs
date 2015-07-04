@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Windows.Media.Animation;
 using MD = System.Windows.Media;
 using System.Reflection;
+using System.Threading;
 
 namespace IDALabOnWheels
 {
@@ -156,7 +157,8 @@ namespace IDALabOnWheels
             RawAccPlot = new LinePlot();
             RawMagPlot = new LinePlot();
             RawGyroPlot = new LinePlot();
-            
+
+            _cameraZxZoomFactor = -2.5f;
         }
 
         /// <summary>
@@ -358,7 +360,6 @@ namespace IDALabOnWheels
 
         void InitMatrices()
         {
-            _cameraZxZoomFactor = -3f;
             //  Create a model matrix to make the model a little bigger.
             ModelMatrix[1] = mat4.identity();
             ModelMatrix[0] = mat4.identity();
@@ -409,10 +410,11 @@ namespace IDALabOnWheels
                     Attitude att = null;
 
                     //   ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
-
+                    #region Read Sensor Data
                     if (EWBBoard != null)
                     {
                         att = EWBBoard.GetAverageAttitude();
+
                         Acceleration[] acc = EWBBoard.GetAcceleration();
                         if(acc != null){
                             vec3[] data = new vec3[acc.Length];
@@ -424,7 +426,7 @@ namespace IDALabOnWheels
                         MagneticField[] mag = EWBBoard.GetCompass();
                         if (mag != null)
                         {
-                            vec3[] data = new vec3[acc.Length];
+                            vec3[] data = new vec3[mag.Length];
                             for (int i = 0; i < mag.Length; i++)
                             {
                                 data[i] = mag[i].ToVec3();
@@ -434,15 +436,23 @@ namespace IDALabOnWheels
                         Rotation[] rot = EWBBoard.GetGyro();
                         if (rot != null)
                         {
-                            vec3[] data = new vec3[acc.Length];
+                            vec3[] data = new vec3[rot.Length];
                             for (int i = 0; i < rot.Length; i++)
                             {
                                 data[i] = rot[i].ToVec3();
                             }
                             RawGyroPlot.FillBuffer(data);
                         }
-                        
+
                     }
+                    else
+                    {
+                        // Orient the model with the back of BT module facing the user
+                        ModelMatrix[0] = mat4.identity();
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(-90), new vec3(0f, 1f, 0f));
+                        ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
+                    }
+                    #endregion
 
                     if (att != null)
                     {
@@ -472,13 +482,8 @@ namespace IDALabOnWheels
                         // Roll = rotate about X axes
                         ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.angleY), new vec3(1f, 0f, 0f));
                         // Yaw = rotate about Y axis
-                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.heading), new vec3(0f, 1f, 0f));
+                        ModelMatrix[0] = glm.rotate(ModelMatrix[0], D2R(att.heading - 90 - EWBBoard.InitialHeading), new vec3(0f, 1f, 0f));
                         ModelMatrix[0] = glm.translate(ModelMatrix[0], -1 * ObjModel.Centroid);
-
-
-                        //normalMatrix = glm.scale(modelMatrix, new vec3(1f)); ;
-
-                        // ModelMatrix[0] = glm.scale(new mat4(1.0f), new vec3(4f));
                     }
                 }
 
@@ -758,14 +763,29 @@ namespace IDALabOnWheels
 
         private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            EWBBoard = new EWBSensorBoard();
-            if (_simulate || EWBBoard.Open(cmbxPorts.Text))
+            if((string)btnConnect.Content == "Disconnect")
             {
-                MainVM.StartStopIsEnabled = true;
-                Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
-                Properties.Settings.Default.SelectedPort = cmbxPorts.SelectedIndex;
-
+                if (EWBBoard != null)
+                {
+                    EWBBoard.Stop();
+                    EWBBoard.DoOnQuit();
+                    this.btnConnect.Content = "Connect";
+                    MainVM.StartStopIsEnabled = false;
+                    
+                }
             }
+            else
+            {
+                EWBBoard = new EWBSensorBoard();
+                if (_simulate || EWBBoard.Open(cmbxPorts.Text))
+                {
+                    MainVM.StartStopIsEnabled = true;
+                    Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
+                    Properties.Settings.Default.SelectedPort = cmbxPorts.SelectedIndex;
+                    this.btnConnect.Content = "Disconnect";
+                }
+            }
+            MainVM.ActivityIsEnabled = false;
 
         }
 
@@ -785,6 +805,7 @@ namespace IDALabOnWheels
             {
                 _enableStop = false;
                 btnStartStop.Content = "Start";
+                MainVM.ActivityIsEnabled = false;
                 EWBBoard.Stop();
             }
 

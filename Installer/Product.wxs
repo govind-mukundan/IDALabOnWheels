@@ -69,9 +69,10 @@
   </Fragment>
   <Fragment>
     <ComponentGroup Id="FilesGroup">
+      <!--
       <Component Id="cmp0F6EDEF8E1B9701871113B3CA86D50C9" Directory="INSTALLFOLDER" Guid="0C69EF2D-FCDC-4385-A838-19D6DDF6DDFF">
         <File Id="fil37706477FE1E7E62287E6C14EB38FA7F" KeyPath="yes" Source="$(var.ScrDir)\1425972558_60814.ico" />
-      </Component>
+      </Component> -->
       <Component Id="cmp631F50636875C6B00336B91BB585BFE1" Directory="INSTALLFOLDER" Guid="A32C64E6-29D6-4C31-9EA9-0808D6BD7D23">
         <File Id="fil3E8F37321BE774DBF5A479176F1F4100" KeyPath="yes" Source="$(var.ScrDir)\Assimp32.dll" />
       </Component>
@@ -81,9 +82,10 @@
       <Component Id="cmp1E5C92952105316FD42AEFA696533D59" Directory="INSTALLFOLDER" Guid="812B2AA2-1684-442F-B083-666E98BD34FE">
         <File Id="filD7E7A38F4FFA21A98DE176989B35DC93" KeyPath="yes" Source="$(var.ScrDir)\AssimpNet.dll" />
       </Component>
+      <!--
       <Component Id="cmp4113BBA40D7193E6283205A786F21869" Directory="INSTALLFOLDER" Guid="CB5ECFFB-8FC5-4CB3-AB11-911DB6F62F01">
         <File Id="filB5A301799FA269FD9D4ED875A3A25421" KeyPath="yes" Source="$(var.ScrDir)\compass-dial.png" />
-      </Component>
+      </Component> -->
       <Component Id="cmpF3A0EC34E55CCA80BD56E8B615D107B8" Directory="INSTALLFOLDER" Guid="33E20039-5A5A-4606-BB43-76B5056891CF">
         <File Id="fil746A72F8489BE1B301834EDD694FACDC" KeyPath="yes" Source="$(var.ScrDir)\GlmNet.dll" />
       </Component>
@@ -102,6 +104,7 @@
       <Component Id="cmp547A56CE3EAE9A4404191E7B85F61462" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="BDE1D6A4-8E94-4A82-A5D1-DADC24F97297">
         <File Id="fil0CD5984B6E73DB20485DE98C4509C288" KeyPath="yes" Source="$(var.ScrDir)\mesh\Assembly.STL" />
       </Component>
+      <!--
       <Component Id="cmp6A54B4568400FD3E9B0F5EDA35E83F61" Directory="dir06E2A75A9D4A38704D7945B85E04E459" Guid="A34BE6A4-B690-4495-8210-5596A01AA935">
         <File Id="fil42CD7E53C303D59502D9871B9E2F1DD0" KeyPath="yes" Source="$(var.ScrDir)\mesh\simba.mtl" />
       </Component>
@@ -182,7 +185,7 @@
       </Component>
       <Component Id="cmpF65E5DA26FC24BB88C61711A9DF722A1" Directory="dir00032B62D4781726C869F6E1FA9E5167" Guid="8F11A19E-FC70-4CF7-9307-F1926A2C663C">
         <File Id="fil9E4A614E5B6941CC4F9B3F8EF5045ACF" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\field\up.jpg" />
-      </Component>
+      </Component> -->
       <Component Id="cmp6876ED5C55F77260F190F8B6292399AB" Directory="dir9CC8227C21650E8FAE48935760BACEA5" Guid="16A989F5-8A41-472B-A40A-0A45CFE358A7">
         <File Id="fil176F34551B8F8DA4556C715191D2C4AC" KeyPath="yes" Source="$(var.ScrDir)\skyboxes\jajlands1\jajlands1_bk.jpg" />
       </Component>
