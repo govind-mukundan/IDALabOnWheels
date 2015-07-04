@@ -80,10 +80,10 @@ namespace IDALabOnWheels
         public string DisplayMessage { get { return displayMsg; } set { displayMsg = value; NotifyPropertyChanged("DisplayMessage"); } }
 
         private string altitude;
-        public string Altitude { get { return altitude; } set { altitude = value; NotifyPropertyChanged("Altitude"); } }
+        public string Altitude { get { return altitude; } set { altitude = "Altitude: " + value; NotifyPropertyChanged("Altitude"); } }
 
         private string temperature;
-        public string Temperature { get { return temperature; } set { temperature = value + "°C"; NotifyPropertyChanged("Temperature"); } }
+        public string Temperature { get { return temperature; } set { temperature = "Temperature: " + value + "°C"; NotifyPropertyChanged("Temperature"); } }
 
 
         /// <summary>
@@ -97,6 +97,8 @@ namespace IDALabOnWheels
             rotateWorld = false;
             NotchON = true;
             DisplayMessage = "Click Start to begin!";
+            Temperature = "0.0";
+            Altitude = "0.0";
         }
 
 

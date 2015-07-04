@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmNet;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -58,6 +59,11 @@ namespace IDALabOnWheels
             this.aY = y;
             this.aZ = z;
         }
+
+        public vec3 ToVec3()
+        {
+            return (new vec3(aX, aY, aZ));
+        }
     }
 
     public class Rotation
@@ -72,6 +78,11 @@ namespace IDALabOnWheels
             this.Roll = y;
             this.Pitch = z;
         }
+
+        public vec3 ToVec3()
+        {
+            return (new vec3(Yaw, Roll, Pitch));
+        }
     }
 
     public class MagneticField
@@ -85,6 +96,11 @@ namespace IDALabOnWheels
             this.hX = x;
             this.hY = y;
             this.hZ = z;
+        }
+
+        public vec3 ToVec3()
+        {
+            return (new vec3(hX, hY, hZ));
         }
     }
 
@@ -278,6 +294,25 @@ namespace IDALabOnWheels
 
             CurrentAttitude = avg;
             return (avg);
+        }
+
+        public float GetAverageTemperature()
+        {
+            float[] data = GetTemperature();
+            if (data!= null && data.Length > 0)
+                return (Utility.Median(data));
+            else
+                return 0f;
+
+        }
+
+        public float GetAverageAltitude()
+        {
+            float[] data = GetAltitude();
+            if (data != null && data.Length > 0)
+                return (Utility.Median(data));
+            else
+                return 0f;
         }
 
         public MagneticField[] GetCompass()

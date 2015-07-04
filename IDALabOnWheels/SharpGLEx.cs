@@ -23,6 +23,11 @@ namespace IDALabOnWheels
             return (new vec3(color.R / 255f, color.G / 255f, color.B / 255f));
         }
 
+        public static vec3 GetColor(DR.Color color)
+        {
+            return (new vec3(color.R / 255f, color.G / 255f, color.B / 255f));
+        }
+
         /// <summary>
         /// Extension to enable use of Vec3[] arrays as input to the vertex buffer
         /// </summary>

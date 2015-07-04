@@ -82,6 +82,7 @@
     <Compile Include="Compass.cs" />
     <Compile Include="DynamicActivity.cs" />
     <Compile Include="GShaderProgram.cs" />
+    <Compile Include="LinePlot.cs" />
     <Compile Include="ManifestResourceLoader.cs" />
     <Compile Include="StaticActivity.cs" />
     <Compile Include="Utility.cs" />
@@ -144,6 +145,8 @@
     <EmbeddedResource Include="Shaders\main_shader.geom" />
     <EmbeddedResource Include="Shaders\particle.frag" />
     <EmbeddedResource Include="Shaders\particle.vert" />
+    <EmbeddedResource Include="Shaders\simple.frag" />
+    <EmbeddedResource Include="Shaders\simple.vert" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="1425972558_60814.ico" />

@@ -36,6 +36,7 @@ namespace IDALabOnWheels
         //  The shader program for our vertex and fragment shader.
         private GShaderProgram textureShader;
         GShaderProgram colorShader;
+        GShaderProgram simpleShader;
         string[] vertexShaderSource;
         string[] fragmentShaderSource;
         string[] geomShaderSource;
@@ -76,6 +77,9 @@ namespace IDALabOnWheels
 
         ObjModelLoader ObjModel;
         EWBSensorBoard EWBBoard;
+        LinePlot RawAccPlot;
+        LinePlot RawMagPlot;
+        LinePlot RawGyroPlot;
 
         int C_SCENE_DYNAMIC_ELEMENT_COUNT = 2;
         mat4[] ModelMatrix;
@@ -93,6 +97,17 @@ namespace IDALabOnWheels
         DynamicActivity _dynamicActivity;
         bool _simulate = false;
         float _compassRot;
+
+        DR.Color COLOR_ACC_X = DR.Color.Red;
+        DR.Color COLOR_ACC_Y = DR.Color.HotPink;
+        DR.Color COLOR_ACC_Z = DR.Color.IndianRed;
+        DR.Color COLOR_MAG_X = DR.Color.Orange;
+        DR.Color COLOR_MAG_Y = DR.Color.Khaki;
+        DR.Color COLOR_MAG_Z = DR.Color.Yellow;
+        DR.Color COLOR_GYR_X = DR.Color.Green;
+        DR.Color COLOR_GYR_Y = DR.Color.Lavender;
+        DR.Color COLOR_GYR_Z = DR.Color.Blue;
+
 
         // TODO: Graph ?? Temp, Altitude display, Calibrarion buttons, complete dynamic activity
         /// <summary>
@@ -112,6 +127,11 @@ namespace IDALabOnWheels
             vertexShaderSource = new string[2];
             fragmentShaderSource = new string[2];
             geomShaderSource = new string[2];
+
+            RawAccPlot = new LinePlot();
+            RawMagPlot = new LinePlot();
+            RawGyroPlot = new LinePlot();
+            
         }
 
         /// <summary>
@@ -180,6 +200,18 @@ namespace IDALabOnWheels
             DrawObj(gl);
 
             DrawCompass(gl);
+            DrawPlot(gl);
+            //RawAccPlot.Render(gl, textureShader);
+
+            if (EWBBoard == null) return;
+
+            float data = EWBBoard.GetAverageTemperature();
+            if(data != 0f) MainVM.Temperature = data.ToString();
+
+            data = EWBBoard.GetAverageAltitude();
+            if(data != 0f) MainVM.Altitude = data.ToString();
+
+
             // gl.DrawText(5, 500, 1.0f, 0.0f, 0.0f, "Courier New", 12.0f, DateTime.Now.ToShortTimeString());
             // gl.Flush();
 
@@ -277,6 +309,24 @@ namespace IDALabOnWheels
             cWidth = openGLControl.ActualWidth;
             cHeight = openGLControl.ActualHeight;
             Debug.WriteIf(_debug, "Width = " + cWidth.ToString() + " Height = " + cHeight.ToString());
+
+            simpleShader = new GShaderProgram();
+            vertexShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\simple.vert");
+            fragmentShaderSource[1] = ManifestResourceLoader.LoadTextFile("Shaders\\simple.frag");
+            simpleShader.Create(gl, vertexShaderSource[1], fragmentShaderSource[1], null);
+            simpleShader.AssertValid(gl);
+
+            DR.Color[] col = new DR.Color[] { COLOR_ACC_X, COLOR_ACC_Y, COLOR_ACC_Z };
+            string[] id = new string[] { "accX", "accY", "accZ" };
+            RawAccPlot.Initialize(gl, col, -700, 700, id, 3);
+
+            col = new DR.Color[] { COLOR_MAG_X, COLOR_MAG_Y, COLOR_MAG_Z };
+            id = new string[] { "magX", "magY", "magZ" };
+            RawMagPlot.Initialize(gl, col, -128, 128, id, 3);
+
+            col = new DR.Color[] { COLOR_GYR_X, COLOR_GYR_Y, COLOR_GYR_Z };
+            id = new string[] { "gyroX", "gyroY", "gyroZ" };
+            RawGyroPlot.Initialize(gl, col, -512, 512, id, 3);
         }
 
         float rotation2 = 0;
@@ -335,7 +385,39 @@ namespace IDALabOnWheels
 
                     //   ViewMatrix[0] = glm.lookAt(new vec3(0.0f, 0.0f, ObjModel.Centroid.z * _cameraZxZoomFactor), new vec3(0.0f, 0.0f, 0.0f), new vec3(0.0f, 1.0f, 0.0f));
 
-                    if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
+                    if (EWBBoard != null)
+                    {
+                        att = EWBBoard.GetAverageAttitude();
+                        Acceleration[] acc = EWBBoard.GetAcceleration();
+                        if(acc != null){
+                            vec3[] data = new vec3[acc.Length];
+                            for(int i=0; i < acc.Length; i++){
+                                data[i] = acc[i].ToVec3();
+                            }
+                            RawAccPlot.FillBuffer(data);
+                        }
+                        MagneticField[] mag = EWBBoard.GetCompass();
+                        if (mag != null)
+                        {
+                            vec3[] data = new vec3[acc.Length];
+                            for (int i = 0; i < mag.Length; i++)
+                            {
+                                data[i] = mag[i].ToVec3();
+                            }
+                            RawMagPlot.FillBuffer(data);
+                        }
+                        Rotation[] rot = EWBBoard.GetGyro();
+                        if (rot != null)
+                        {
+                            vec3[] data = new vec3[acc.Length];
+                            for (int i = 0; i < rot.Length; i++)
+                            {
+                                data[i] = rot[i].ToVec3();
+                            }
+                            RawGyroPlot.FillBuffer(data);
+                        }
+                        
+                    }
 
                     if (att != null)
                     {
@@ -400,360 +482,6 @@ namespace IDALabOnWheels
 
         }
 
-
-
-        // render an OBJ object
-        void DrawObject(OpenGL GL)
-        {
-            SetMatrices(0);
-
-
-
-
-            ////  Create the vertex array object.
-            vertexBufferArray = new VertexBufferArray();
-            vertexBufferArray.Create(GL);
-            vertexBufferArray.Bind(GL);
-
-            var vertexDataBuffer = new VertexBuffer();
-            vertexDataBuffer.Create(GL);
-            vertexDataBuffer.Bind(GL);
-            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            //  Now do the same for the colour data.
-            var colourDataBuffer = new VertexBuffer();
-            colourDataBuffer.Create(GL);
-            colourDataBuffer.Bind(GL);
-            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
-
-            ////  Now do the same for the texture map data.
-            //var texturerDataBuffer = new VertexBuffer();
-            //texturerDataBuffer.Create(GL);
-            //texturerDataBuffer.Bind(GL);
-            //texturerDataBuffer.SetData(GL, attribute_vtexture, textureCoordinates, false, 2);
-
-            //  Now do the same for the texture map data.
-            //var lightingDataBuffer = new VertexBuffer();
-            //texturerDataBuffer.Create(GL);
-            //texturerDataBuffer.Bind(GL);
-            //texturerDataBuffer.SetData(GL, attribute_vSurfNormal, cubeSurfaceNormals, false, 3);
-
-            //  Unbind the vertex array, we've finished specifying data for it.
-            vertexBufferArray.Unbind(GL);
-
-            //  Bind the shader, set the matrices.
-            textureShader.Bind(GL);
-            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
-
-            //  Bind the out vertex array.
-            vertexBufferArray.Bind(GL);
-
-            _texture = new Texture();
-
-            // Open a Stream and decode a PNG image
-            //GL.ActiveTexture(OpenGL.GL_TEXTURE0);
-            //myBitmap = new Bitmap("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\1.png");
-            //_texture.Create(GL, myBitmap);
-            //_texture.Bind(GL);
-            //shaderProgram.SetUniform1(GL, "uSampler", 0);
-
-            GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, xgrid.Length);
-            // 6 triangle vertices in a face, 36 vertices in the whole cube
-            //GL.DrawElements(OpenGL.GL_TRIANGLES, 36, cubeVertexIndices); // Use elements to save RAM
-
-            //  Unbind our vertex array and shader.
-            vertexBufferArray.Unbind(GL);
-            textureShader.Unbind(GL);
-
-        }
-
-
-        void CreateAndDrawCube(OpenGL GL, int index)
-        {
-            // Create a Cube with 24 vertices. When you split a cube into triangles you will get 36 vertices
-            xgrid = new vec3[] {    // Front face
-                                    new vec3(-1f, -1.0f, 1.0f), 
-                                    new vec3(1.0f, -1.0f, 1.0f), 
-                                    new vec3(1.0f, 1.0f, 1.0f), 
-                                    new vec3(-1.0f, 1.0f, 1.0f),
-                                    // Back face
-                                    new vec3(-1f, -1.0f, -1.0f), 
-                                    new vec3(-1.0f, 1.0f, -1.0f), 
-                                    new vec3(1.0f, 1.0f, -1.0f), 
-                                    new vec3(1.0f, -1.0f, -1.0f),
-                                    // Top face
-                                    new vec3(-1f, 1.0f, -1.0f), 
-                                    new vec3(-1.0f, 1.0f, 1.0f), 
-                                    new vec3(1.0f, 1.0f, 1.0f), 
-                                    new vec3(1.0f, 1.0f, -1.0f),
-                                    // Bottom face
-                                    new vec3(-1f, -1.0f, -1.0f), 
-                                    new vec3(1.0f, -1.0f, -1.0f), 
-                                    new vec3(1.0f, -1.0f, 1.0f), 
-                                    new vec3(-1.0f, -1.0f, 1.0f),
-                                    // Right face
-                                    new vec3(1f, -1.0f, -1.0f), 
-                                    new vec3(1.0f, 1.0f, -1.0f), 
-                                    new vec3(1.0f, 1.0f, 1.0f), 
-                                    new vec3(1.0f, -1.0f, 1.0f),
-                                    // Left face
-                                    new vec3(-1f, -1.0f, -1.0f), 
-                                    new vec3(-1.0f, -1.0f, 1.0f), 
-                                    new vec3(-1.0f, 1.0f, 1.0f), 
-                                    new vec3(-1.0f, 1.0f, -1.0f),
-            };
-
-            cubeSurfaceNormals = new vec3[] { 
-            // Front
-     new vec3(0.0f,  0.0f,  1.0f),
-     new vec3(0.0f,  0.0f,  1.0f),
-     new vec3(0.0f,  0.0f,  1.0f),
-    new vec3(0.0f,  0.0f,  1.0f),
-    
-    // Back
-     new vec3(0.0f,  0.0f, -1.0f),
-    new vec3(0.0f,  0.0f, -1.0f),
-     new vec3(0.0f,  0.0f, -1.0f),
-     new vec3(0.0f,  0.0f, -1.0f),
-    
-    // Top
-    new vec3( 0.0f,  1.0f,  0.0f),
-     new vec3( 0.0f,  1.0f,  0.0f),
-    new vec3( 0.0f,  1.0f,  0.0f),
-     new vec3( 0.0f,  1.0f,  0.0f),
-    
-    // Bottom
-     new vec3(0.0f, -1.0f,  0.0f),
-     new vec3(0.0f, -1.0f,  0.0f),
-    new vec3(0.0f, -1.0f,  0.0f),
-     new vec3(0.0f, -1.0f,  0.0f),
-    
-    // Right
-     new vec3(1.0f,  0.0f,  0.0f),
-     new vec3(1.0f,  0.0f,  0.0f),
-     new vec3(1.0f,  0.0f,  0.0f),
-     new vec3(1.0f,  0.0f,  0.0f),
-    
-    // Left
-    new vec3(-1.0f,  0.0f,  0.0f),
-    new vec3(-1.0f,  0.0f,  0.0f),
-    new vec3(-1.0f,  0.0f,  0.0f),
-   new vec3(-1.0f,  0.0f,  0.0f)};
-
-            var cubeVertexIndices = new uint[] {
-  0, 1, 2, 0, 2, 3,    // front
-  4, 5, 6, 4, 6, 7,    // back
-  8, 9, 10, 8, 10, 11,   // top
-  12, 13, 14, 12, 14, 15,   // bottom
-  16, 17, 18, 16, 18, 19,   // right
-  20, 21, 22, 20, 22, 23    // left
-            };
-
-            var textureCoordinates = new vec2[] {
-    // Front
-    new vec2(0f, 0f), 
-    new vec2(2f, 0f), 
-    new vec2(2f, 2f), 
-    new vec2(0f, 2f), 
-    // Back
-        new vec2(0f, 0f), 
-    new vec2(1f, 0f), 
-    new vec2(1f, 1f), 
-    new vec2(0f, 1f), 
-
-    // Top
-        new vec2(0f, 0f), 
-    new vec2(1f, 0f), 
-    new vec2(1f, 1f), 
-    new vec2(0f, 1f), 
-
-    // Bottom
-        new vec2(0f, 0f), 
-    new vec2(1f, 0f), 
-    new vec2(1f, 1f), 
-    new vec2(0f, 1f), 
-
-    // Right
-        new vec2(0f, 0f), 
-    new vec2(1f, 0f), 
-    new vec2(1f, 1f), 
-    new vec2(0f, 1f), 
-
-    // Left
-        new vec2(0f, 0f), 
-    new vec2(1f, 0f), 
-    new vec2(1f, 1f), 
-    new vec2(0f, 1f), 
-
-  };
-
-            SetMatrices(index);
-
-            // The color of each face
-            vec3[] faceColor = new vec3[] { 
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.Red),
-                GL.Color(DR.Color.Green),
-                GL.Color(DR.Color.Blue) ,
-                GL.Color(DR.Color.Yellow),
-                GL.Color(DR.Color.Purple)
-            };
-
-            // Add color for each of the 24 vertices defined above
-            coldata = new vec3[xgrid.Length];
-            for (int i = 0; i < faceColor.Length; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    coldata[i * 4 + j] = faceColor[i];
-                }
-            }
-
-            ////  Create the vertex array object.
-            vertexBufferArray = new VertexBufferArray();
-            vertexBufferArray.Create(GL);
-            vertexBufferArray.Bind(GL);
-
-            //  Create a vertex buffer for the vertex data.
-            //var indexDataBuffer = new IndexBuffer();
-            //indexDataBuffer.Create(GL);
-            //indexDataBuffer.Bind(GL);
-            //indexDataBuffer.SetData(GL, cubeVertexIndices);
-            //vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            var vertexDataBuffer = new VertexBuffer();
-            vertexDataBuffer.Create(GL);
-            vertexDataBuffer.Bind(GL);
-            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            //  Now do the same for the colour data.
-            var colourDataBuffer = new VertexBuffer();
-            colourDataBuffer.Create(GL);
-            colourDataBuffer.Bind(GL);
-            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
-
-            //  Now do the same for the texture map data.
-            var texturerDataBuffer = new VertexBuffer();
-            texturerDataBuffer.Create(GL);
-            texturerDataBuffer.Bind(GL);
-            texturerDataBuffer.SetData(GL, attribute_vtexture, textureCoordinates, false, 2);
-
-            //  Now do the same for the texture map data.
-            var lightingDataBuffer = new VertexBuffer();
-            texturerDataBuffer.Create(GL);
-            texturerDataBuffer.Bind(GL);
-            texturerDataBuffer.SetData(GL, attribute_vSurfNormal, cubeSurfaceNormals, false, 3);
-
-            //  Unbind the vertex array, we've finished specifying data for it.
-            vertexBufferArray.Unbind(GL);
-
-            //  Bind the shader, set the matrices.
-            textureShader.Bind(GL);
-            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
-
-            //  Bind the out vertex array.
-            vertexBufferArray.Bind(GL);
-
-            _texture = new Texture();
-
-            // Open a Stream and decode a PNG image
-            GL.ActiveTexture(OpenGL.GL_TEXTURE1);
-            myBitmap = new Bitmap("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\1.png");
-            _texture.Create(GL, myBitmap);
-            _texture.Bind(GL);
-            //shaderProgram.SetUniform1(GL, "uSampler", 1);
-            GL.Uniform1(uSampler, 1);
-
-            //GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
-            // 6 triangle vertices in a face, 36 vertices in the whole cube
-            GL.DrawElements(OpenGL.GL_TRIANGLES, 36, cubeVertexIndices); // Use elements to save RAM
-
-            //  Unbind our vertex array and shader.
-            vertexBufferArray.Unbind(GL);
-            textureShader.Unbind(GL);
-        }
-
-        Texture _texture;
-
-        void CreateAndDrawGrid(OpenGL GL)
-        {
-            // Debug.WriteLine("Painting Begins..");
-
-            // Create vertices for 4 lines that will split the figure into 3 equal sections
-            xgrid = new vec3[(C_NUM_Y_DIV + 1) * 2];
-            for (int i = 0; i < (C_NUM_Y_DIV + 1) * 2; i = i + 2)
-            {
-                xgrid[i].x = -1f; xgrid[i + 1].x = 1f;
-                xgrid[i].y = C_X_MARGIN_MIN + C_Y_STEP * i / 2; xgrid[i + 1].y = C_X_MARGIN_MIN + C_Y_STEP * i / 2;
-                xgrid[i].z = 0f; xgrid[i + 1].z = 0f;
-            }
-
-            coldata = new vec3[] { 
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White),
-                GL.Color(DR.Color.White)
-            };
-
-
-            // --------------- Implementation WITH VERTEX ARRAY OBJECTS --------------------
-            ////  Create the vertex array object.
-            vertexBufferArray = new VertexBufferArray();
-            vertexBufferArray.Create(GL);
-            vertexBufferArray.Bind(GL);
-
-            //  Create a vertex buffer for the vertex data.
-            var vertexDataBuffer = new VertexBuffer();
-            vertexDataBuffer.Create(GL);
-            vertexDataBuffer.Bind(GL);
-            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
-
-            //  Now do the same for the colour data.
-            var colourDataBuffer = new VertexBuffer();
-            colourDataBuffer.Create(GL);
-            colourDataBuffer.Bind(GL);
-            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
-
-            //  Unbind the vertex array, we've finished specifying data for it.
-            vertexBufferArray.Unbind(GL);
-
-            //  Bind the shader, set the matrices.
-            textureShader.Bind(GL);
-            //shaderProgram.SetUniformMatrix4(gl, "projectionMatrix", projectionMatrix.to_array());
-            //shaderProgram.SetUniformMatrix4(gl, "viewMatrix", viewMatrix.to_array());
-            textureShader.SetUniformMatrix4(GL, "modelview", modelMatrix.to_array());
-
-            //  Bind the out vertex array.
-            vertexBufferArray.Bind(GL);
-
-            GL.DrawArrays(OpenGL.GL_LINES, 0, 8);
-
-            //  Unbind our vertex array and shader.
-            vertexBufferArray.Unbind(GL);
-            textureShader.Unbind(GL);
-
-            // --------------- Implementation WITH VERTEX ARRAY OBJECTS END --------------------
-
-        }
-
         void DrawCompass(OpenGL GL)
         {
             mat4 model = mat4.identity();
@@ -814,6 +542,15 @@ namespace IDALabOnWheels
                     _dataColor[j][i] = C_PLOT_COLORS[j];
                 }
             }
+        }
+
+        void DrawPlot(OpenGL GL)
+        {
+            simpleShader.Bind(GL);
+            RawAccPlot.Render(GL, simpleShader);
+            RawMagPlot.Render(GL, simpleShader);
+            RawGyroPlot.Render(GL, simpleShader);
+            simpleShader.Unbind(GL);
         }
 
         void DrawObj(OpenGL GL)
@@ -1110,6 +847,7 @@ namespace IDALabOnWheels
             skyBox.Release(openGLControl.OpenGL);
             _compass.Release(openGLControl.OpenGL);
             _cArrow.Release(openGLControl.OpenGL);
+            RawAccPlot.Release(openGLControl.OpenGL);
 
             if (textureShader != null)
                 textureShader.Delete(openGLControl.OpenGL);
@@ -1176,5 +914,364 @@ namespace IDALabOnWheels
             }
         }
 
+
+
+
+        // render an OBJ object
+        void DrawObject(OpenGL GL)
+        {
+            SetMatrices(0);
+
+
+
+
+            ////  Create the vertex array object.
+            vertexBufferArray = new VertexBufferArray();
+            vertexBufferArray.Create(GL);
+            vertexBufferArray.Bind(GL);
+
+            var vertexDataBuffer = new VertexBuffer();
+            vertexDataBuffer.Create(GL);
+            vertexDataBuffer.Bind(GL);
+            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
+
+            //  Now do the same for the colour data.
+            var colourDataBuffer = new VertexBuffer();
+            colourDataBuffer.Create(GL);
+            colourDataBuffer.Bind(GL);
+            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
+
+            ////  Now do the same for the texture map data.
+            //var texturerDataBuffer = new VertexBuffer();
+            //texturerDataBuffer.Create(GL);
+            //texturerDataBuffer.Bind(GL);
+            //texturerDataBuffer.SetData(GL, attribute_vtexture, textureCoordinates, false, 2);
+
+            //  Now do the same for the texture map data.
+            //var lightingDataBuffer = new VertexBuffer();
+            //texturerDataBuffer.Create(GL);
+            //texturerDataBuffer.Bind(GL);
+            //texturerDataBuffer.SetData(GL, attribute_vSurfNormal, cubeSurfaceNormals, false, 3);
+
+            //  Unbind the vertex array, we've finished specifying data for it.
+            vertexBufferArray.Unbind(GL);
+
+            //  Bind the shader, set the matrices.
+            textureShader.Bind(GL);
+            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+
+            //  Bind the out vertex array.
+            vertexBufferArray.Bind(GL);
+
+            _texture = new Texture();
+
+            // Open a Stream and decode a PNG image
+            //GL.ActiveTexture(OpenGL.GL_TEXTURE0);
+            //myBitmap = new Bitmap("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\1.png");
+            //_texture.Create(GL, myBitmap);
+            //_texture.Bind(GL);
+            //shaderProgram.SetUniform1(GL, "uSampler", 0);
+
+            GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, xgrid.Length);
+            // 6 triangle vertices in a face, 36 vertices in the whole cube
+            //GL.DrawElements(OpenGL.GL_TRIANGLES, 36, cubeVertexIndices); // Use elements to save RAM
+
+            //  Unbind our vertex array and shader.
+            vertexBufferArray.Unbind(GL);
+            textureShader.Unbind(GL);
+
+        }
+
+        void CreateAndDrawGrid(OpenGL GL)
+        {
+            // Debug.WriteLine("Painting Begins..");
+
+            // Create vertices for 4 lines that will split the figure into 3 equal sections
+            xgrid = new vec3[(C_NUM_Y_DIV + 1) * 2];
+            for (int i = 0; i < (C_NUM_Y_DIV + 1) * 2; i = i + 2)
+            {
+                xgrid[i].x = -1f; xgrid[i + 1].x = 1f;
+                xgrid[i].y = C_X_MARGIN_MIN + C_Y_STEP * i / 2; xgrid[i + 1].y = C_X_MARGIN_MIN + C_Y_STEP * i / 2;
+                xgrid[i].z = 0f; xgrid[i + 1].z = 0f;
+            }
+
+            coldata = new vec3[] { 
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.White)
+            };
+
+
+            // --------------- Implementation WITH VERTEX ARRAY OBJECTS --------------------
+            ////  Create the vertex array object.
+            vertexBufferArray = new VertexBufferArray();
+            vertexBufferArray.Create(GL);
+            vertexBufferArray.Bind(GL);
+
+            //  Create a vertex buffer for the vertex data.
+            var vertexDataBuffer = new VertexBuffer();
+            vertexDataBuffer.Create(GL);
+            vertexDataBuffer.Bind(GL);
+            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
+
+            //  Now do the same for the colour data.
+            var colourDataBuffer = new VertexBuffer();
+            colourDataBuffer.Create(GL);
+            colourDataBuffer.Bind(GL);
+            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
+
+            //  Unbind the vertex array, we've finished specifying data for it.
+            vertexBufferArray.Unbind(GL);
+
+            //  Bind the shader, set the matrices.
+            textureShader.Bind(GL);
+            //shaderProgram.SetUniformMatrix4(gl, "projectionMatrix", projectionMatrix.to_array());
+            //shaderProgram.SetUniformMatrix4(gl, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelview", modelMatrix.to_array());
+
+            //  Bind the out vertex array.
+            vertexBufferArray.Bind(GL);
+
+            GL.DrawArrays(OpenGL.GL_LINES, 0, 8);
+
+            //  Unbind our vertex array and shader.
+            vertexBufferArray.Unbind(GL);
+            textureShader.Unbind(GL);
+
+            // --------------- Implementation WITH VERTEX ARRAY OBJECTS END --------------------
+
+        }
+        void CreateAndDrawCube(OpenGL GL, int index)
+        {
+            // Create a Cube with 24 vertices. When you split a cube into triangles you will get 36 vertices
+            xgrid = new vec3[] {    // Front face
+                                    new vec3(-1f, -1.0f, 1.0f), 
+                                    new vec3(1.0f, -1.0f, 1.0f), 
+                                    new vec3(1.0f, 1.0f, 1.0f), 
+                                    new vec3(-1.0f, 1.0f, 1.0f),
+                                    // Back face
+                                    new vec3(-1f, -1.0f, -1.0f), 
+                                    new vec3(-1.0f, 1.0f, -1.0f), 
+                                    new vec3(1.0f, 1.0f, -1.0f), 
+                                    new vec3(1.0f, -1.0f, -1.0f),
+                                    // Top face
+                                    new vec3(-1f, 1.0f, -1.0f), 
+                                    new vec3(-1.0f, 1.0f, 1.0f), 
+                                    new vec3(1.0f, 1.0f, 1.0f), 
+                                    new vec3(1.0f, 1.0f, -1.0f),
+                                    // Bottom face
+                                    new vec3(-1f, -1.0f, -1.0f), 
+                                    new vec3(1.0f, -1.0f, -1.0f), 
+                                    new vec3(1.0f, -1.0f, 1.0f), 
+                                    new vec3(-1.0f, -1.0f, 1.0f),
+                                    // Right face
+                                    new vec3(1f, -1.0f, -1.0f), 
+                                    new vec3(1.0f, 1.0f, -1.0f), 
+                                    new vec3(1.0f, 1.0f, 1.0f), 
+                                    new vec3(1.0f, -1.0f, 1.0f),
+                                    // Left face
+                                    new vec3(-1f, -1.0f, -1.0f), 
+                                    new vec3(-1.0f, -1.0f, 1.0f), 
+                                    new vec3(-1.0f, 1.0f, 1.0f), 
+                                    new vec3(-1.0f, 1.0f, -1.0f),
+            };
+
+            cubeSurfaceNormals = new vec3[] { 
+            // Front
+     new vec3(0.0f,  0.0f,  1.0f),
+     new vec3(0.0f,  0.0f,  1.0f),
+     new vec3(0.0f,  0.0f,  1.0f),
+    new vec3(0.0f,  0.0f,  1.0f),
+    
+    // Back
+     new vec3(0.0f,  0.0f, -1.0f),
+    new vec3(0.0f,  0.0f, -1.0f),
+     new vec3(0.0f,  0.0f, -1.0f),
+     new vec3(0.0f,  0.0f, -1.0f),
+    
+    // Top
+    new vec3( 0.0f,  1.0f,  0.0f),
+     new vec3( 0.0f,  1.0f,  0.0f),
+    new vec3( 0.0f,  1.0f,  0.0f),
+     new vec3( 0.0f,  1.0f,  0.0f),
+    
+    // Bottom
+     new vec3(0.0f, -1.0f,  0.0f),
+     new vec3(0.0f, -1.0f,  0.0f),
+    new vec3(0.0f, -1.0f,  0.0f),
+     new vec3(0.0f, -1.0f,  0.0f),
+    
+    // Right
+     new vec3(1.0f,  0.0f,  0.0f),
+     new vec3(1.0f,  0.0f,  0.0f),
+     new vec3(1.0f,  0.0f,  0.0f),
+     new vec3(1.0f,  0.0f,  0.0f),
+    
+    // Left
+    new vec3(-1.0f,  0.0f,  0.0f),
+    new vec3(-1.0f,  0.0f,  0.0f),
+    new vec3(-1.0f,  0.0f,  0.0f),
+   new vec3(-1.0f,  0.0f,  0.0f)};
+
+            var cubeVertexIndices = new uint[] {
+  0, 1, 2, 0, 2, 3,    // front
+  4, 5, 6, 4, 6, 7,    // back
+  8, 9, 10, 8, 10, 11,   // top
+  12, 13, 14, 12, 14, 15,   // bottom
+  16, 17, 18, 16, 18, 19,   // right
+  20, 21, 22, 20, 22, 23    // left
+            };
+
+            var textureCoordinates = new vec2[] {
+    // Front
+    new vec2(0f, 0f), 
+    new vec2(2f, 0f), 
+    new vec2(2f, 2f), 
+    new vec2(0f, 2f), 
+    // Back
+        new vec2(0f, 0f), 
+    new vec2(1f, 0f), 
+    new vec2(1f, 1f), 
+    new vec2(0f, 1f), 
+
+    // Top
+        new vec2(0f, 0f), 
+    new vec2(1f, 0f), 
+    new vec2(1f, 1f), 
+    new vec2(0f, 1f), 
+
+    // Bottom
+        new vec2(0f, 0f), 
+    new vec2(1f, 0f), 
+    new vec2(1f, 1f), 
+    new vec2(0f, 1f), 
+
+    // Right
+        new vec2(0f, 0f), 
+    new vec2(1f, 0f), 
+    new vec2(1f, 1f), 
+    new vec2(0f, 1f), 
+
+    // Left
+        new vec2(0f, 0f), 
+    new vec2(1f, 0f), 
+    new vec2(1f, 1f), 
+    new vec2(0f, 1f), 
+
+  };
+
+            SetMatrices(index);
+
+            // The color of each face
+            vec3[] faceColor = new vec3[] { 
+                GL.Color(DR.Color.White),
+                GL.Color(DR.Color.Red),
+                GL.Color(DR.Color.Green),
+                GL.Color(DR.Color.Blue) ,
+                GL.Color(DR.Color.Yellow),
+                GL.Color(DR.Color.Purple)
+            };
+
+            // Add color for each of the 24 vertices defined above
+            coldata = new vec3[xgrid.Length];
+            for (int i = 0; i < faceColor.Length; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    coldata[i * 4 + j] = faceColor[i];
+                }
+            }
+
+            ////  Create the vertex array object.
+            vertexBufferArray = new VertexBufferArray();
+            vertexBufferArray.Create(GL);
+            vertexBufferArray.Bind(GL);
+
+            //  Create a vertex buffer for the vertex data.
+            //var indexDataBuffer = new IndexBuffer();
+            //indexDataBuffer.Create(GL);
+            //indexDataBuffer.Bind(GL);
+            //indexDataBuffer.SetData(GL, cubeVertexIndices);
+            //vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
+
+            var vertexDataBuffer = new VertexBuffer();
+            vertexDataBuffer.Create(GL);
+            vertexDataBuffer.Bind(GL);
+            vertexDataBuffer.SetData(GL, attribute_vpos, xgrid, false, 3);
+
+            //  Now do the same for the colour data.
+            var colourDataBuffer = new VertexBuffer();
+            colourDataBuffer.Create(GL);
+            colourDataBuffer.Bind(GL);
+            colourDataBuffer.SetData(GL, attribute_vcol, coldata, false, 3);
+
+            //  Now do the same for the texture map data.
+            var texturerDataBuffer = new VertexBuffer();
+            texturerDataBuffer.Create(GL);
+            texturerDataBuffer.Bind(GL);
+            texturerDataBuffer.SetData(GL, attribute_vtexture, textureCoordinates, false, 2);
+
+            //  Now do the same for the texture map data.
+            var lightingDataBuffer = new VertexBuffer();
+            texturerDataBuffer.Create(GL);
+            texturerDataBuffer.Bind(GL);
+            texturerDataBuffer.SetData(GL, attribute_vSurfNormal, cubeSurfaceNormals, false, 3);
+
+            //  Unbind the vertex array, we've finished specifying data for it.
+            vertexBufferArray.Unbind(GL);
+
+            //  Bind the shader, set the matrices.
+            textureShader.Bind(GL);
+            textureShader.SetUniformMatrix4(GL, "projectionMatrix", projectionMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "viewMatrix", viewMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "modelMatrix", modelMatrix.to_array());
+            textureShader.SetUniformMatrix4(GL, "normalMatrix", normalMatrix.to_array());
+
+            //  Bind the out vertex array.
+            vertexBufferArray.Bind(GL);
+
+            _texture = new Texture();
+
+            // Open a Stream and decode a PNG image
+            GL.ActiveTexture(OpenGL.GL_TEXTURE1);
+            myBitmap = new Bitmap("D:\\OpenGL\\SharpGLWPFPlot\\SharpGLWPFPlot\\Resources\\1.png");
+            _texture.Create(GL, myBitmap);
+            _texture.Bind(GL);
+            //shaderProgram.SetUniform1(GL, "uSampler", 1);
+            GL.Uniform1(uSampler, 1);
+
+            //GL.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
+            // 6 triangle vertices in a face, 36 vertices in the whole cube
+            GL.DrawElements(OpenGL.GL_TRIANGLES, 36, cubeVertexIndices); // Use elements to save RAM
+
+            //  Unbind our vertex array and shader.
+            vertexBufferArray.Unbind(GL);
+            textureShader.Unbind(GL);
+        }
+
+        Texture _texture;
+
+
+
     }
+
+
+
+
 }
