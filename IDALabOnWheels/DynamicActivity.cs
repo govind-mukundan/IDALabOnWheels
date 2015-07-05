@@ -49,6 +49,7 @@ namespace IDALabOnWheels
         /// To count a revolution:
         /// 1. Classify the current angle into a quadrant and add it to a buffer if it's different from the last classification
         /// 2. Look for sequence of mod(1-2-3-4-1) in the last 4 entries and calculate the speed by finding the time difference between entry 1 and 5
+        /// 3. The timer should stop counting whenever the roll rate is less than threshold
         /// </summary>
         /// <param name="att"></param>
         /// <returns></returns>
@@ -82,13 +83,13 @@ namespace IDALabOnWheels
             if (_queue.Count == 0 || quad != _queue.ElementAt(_queue.Count - 1).Quadrant)
             {
                 // We've entered a new quadrant snapshot the time
-                RotStamp point = new RotStamp(quad, this.ElapsedTime);
+                RotStamp point = new RotStamp(quad, DateTime.Now - new DateTime(0));
                 _queue.Enqueue(point);
-                _timeoutStamp = this.ElapsedTime;
+                _timeoutStamp = DateTime.Now - new DateTime(0);
             }
 
             // reset if there is no new quadrant in 15 seconds
-            if (this.ElapsedTime - _timeoutStamp > _timeout)
+            if (DateTime.Now - new DateTime(0) - _timeoutStamp > _timeout)
                 CurrentRPM = 0;
 
             // See if there are 5 elements matching the sequence 1-2-3-4-1
@@ -126,6 +127,11 @@ namespace IDALabOnWheels
                 }
                 _queue.Dequeue(); //pop out an element for every 5 entries
             }
+
+            if (CurrentRPM < EXP_ROLL_RATE)
+                this.Pause();
+            else
+                this.Resume();
 
             return (false);
         }

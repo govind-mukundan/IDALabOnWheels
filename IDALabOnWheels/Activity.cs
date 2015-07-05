@@ -25,8 +25,19 @@ namespace IDALabOnWheels
         {
             _timer = new ActivityTimer();
             _timer.NotifyPerSec = NotifyPerSec;
+            _timer.Pause = false;
             _timer.Start(false, new TimeSpan(0, 0, 0));
             _running = true;
+        }
+
+        public void Pause()
+        {
+            _timer.Pause = true;
+        }
+
+        public void Resume()
+        {
+            _timer.Pause = false;
         }
 
         public virtual bool Process()

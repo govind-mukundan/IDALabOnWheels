@@ -14,21 +14,23 @@ namespace IDALabOnWheels
         TimeSpan _oneSec;
         public Action NotifyPerSec;
         public Action NotifyOnCompletion;
+        public bool Pause;
         bool CountdownMode;
 
         private void OneSecTimer(object sender, EventArgs e)
         {
+
             if (!CountdownMode)
             {
                 _utcTimer.Start();
-                _time = _time.Add(_oneSec);
+                if (!Pause) _time = _time.Add(_oneSec);
             }
             else
             {
                 if (_time >= _oneSec)
                 {
                     _utcTimer.Start();
-                    _time = _time.Subtract(_oneSec);
+                    if (!Pause) _time = _time.Subtract(_oneSec);
                 }
                 else
                 {

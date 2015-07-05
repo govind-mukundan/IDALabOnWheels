@@ -1,65 +1,84 @@
-﻿<Window x:Class="IDALabOnWheels.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ports="clr-namespace:System.IO.Ports;assembly=System"
-        xmlns:local="clr-namespace:IDALabOnWheels"
-        Title="EWB Sensor App" Height="634" Width="1067" 
+        xmlns:local="clr-namespace:IDALabOnWheels" 
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="IDALabOnWheels.MainWindow"
+        Title="EWB Sensor App" Height="634" Width="1067"
         Icon="favicon.ico"
         Closed="Window_Closed"
         WindowState="Maximized">
-    <Window.DataContext>
-        <local:ViewModel x:Name="MainVM"/>
-    </Window.DataContext>
     <Window.Resources>
         <ObjectDataProvider ObjectType="{x:Type ports:SerialPort}" MethodName="GetPortNames" x:Key="portNames"/>
     </Window.Resources>
-    <Grid Name="LayoutRoot">
-        <!-- The OpenGL control provides a OpenGL drawing surface. -->
-        <sharpGL:OpenGLControl 
-            Name="openGLControl" OpenGLDraw="openGLControl_OpenGLDraw" 
-            OpenGLInitialized="openGLControl_OpenGLInitialized" Resized="openGLControl_Resized" RenderContextType="FBO" FrameRate="20" DrawFPS="True" Background="Black" Margin="0,72,0,0"
-            MouseWheel="MouseWheelHandler" Panel.ZIndex="1"/>
-        <Grid HorizontalAlignment="Left" Height="85" Margin="10,10,0,0" VerticalAlignment="Top" Width="302">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Button Content="_Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" Click="btnConnect_Click" x:Name="btnConnect" IsEnabled="{Binding Path=BTConnectIsEnabled}" Margin="0,28,0,0" Grid.ColumnSpan="2" Height="30" Grid.RowSpan="2"/>
-            <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="92" ItemsSource="{Binding Source={StaticResource portNames}}" SelectedIndex="0" x:Name="cmbxPorts" Grid.Row="0" RenderTransformOrigin="-1.033,0.455" Grid.ColumnSpan="2" Margin="67,2,0,0"/>
-            <Button Content="_Start" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="btnStart_Click" x:Name="btnStartStop" IsEnabled="{Binding Path=StartStopIsEnabled}" Height="55" Grid.Column="2" Margin="10,0,0,0" Grid.RowSpan="2"/>
-            <Label Content="COM Port" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Grid.Column="0" Grid.Row="0"/>
+    <Window.DataContext>
+        <local:ViewModel x:Name="MainVM"/>
+    </Window.DataContext>
+	<Grid x:Name="LayoutRoot">
+		<!-- The OpenGL control provides a OpenGL drawing surface. -->
+		<sharpGL:OpenGLControl 
+			x:Name="openGLControl" OpenGLDraw="openGLControl_OpenGLDraw" 
+			OpenGLInitialized="openGLControl_OpenGLInitialized" Resized="openGLControl_Resized" RenderContextType="FBO" FrameRate="20" DrawFPS="True" Background="Black" Margin="0,72,0,0"
+			MouseWheel="MouseWheelHandler" Panel.ZIndex="1"/>
+		<Grid HorizontalAlignment="Left" Height="85" Margin="10,10,0,0" VerticalAlignment="Top" Width="191.552">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<Button Content="_Connect" HorizontalAlignment="Left" VerticalAlignment="Top" Width="159" Click="btnConnect_Click" x:Name="btnConnect" IsEnabled="{Binding BTConnectIsEnabled}" Margin="0,25,0,0" Grid.ColumnSpan="2" Height="30" Grid.RowSpan="2" Background="#FF11E7F1"/>
+			<ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="92" ItemsSource="{Binding Source={StaticResource portNames}}" SelectedIndex="0" x:Name="cmbxPorts" Grid.Row="0" RenderTransformOrigin="-1.033,0.455" Grid.ColumnSpan="2" Margin="67,0,0,0" Background="#FF13F1E7"/>
+			<Button Content="_Start" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="btnStart_Click" x:Name="btnStartStop" IsEnabled="{Binding StartStopIsEnabled}" Height="55" Grid.Column="2" Margin="10,0,0,0" Grid.RowSpan="2" Visibility="Hidden"/>
+			<Label Content="COM Port" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="100" Grid.Column="0" Grid.Row="0" Margin="0,-3,0,0"/>
+		</Grid>
+		<TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="0,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="122" FontSize="40" Panel.ZIndex="2" Text="{Binding TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
+		<TextBlock x:Name="DispMessage" HorizontalAlignment="Left" Margin="23,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="87" FontSize="40" Panel.ZIndex="2" Text="{Binding DisplayMessage}" FontFamily="Jokerman" Foreground="Red"/>
+		<Label Content="{Binding Temperature}" Margin="704.91,10,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="18.667" HorizontalAlignment="Left"/>
+		<Label Content="{Binding Altitude}" HorizontalAlignment="Left" Margin="687,31,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14" Visibility="Hidden"/>
+		<GroupBox Header="" HorizontalAlignment="Right" VerticalAlignment="Top" Width="323" Height="75.08" Margin="0,-5,0,0">
+			<Grid HorizontalAlignment="Left" Height="57" VerticalAlignment="Top" Width="313" Margin="0,0,-2,0">
+				<Label Content="Accelerometer" HorizontalAlignment="Left" Margin="5,-10,0,0" VerticalAlignment="Top" Height="30"/>
+				<CheckBox Content="Acc X"  x:Name="AccX" HorizontalAlignment="Left" Margin="15,12,0,0" VerticalAlignment="Top" IsChecked="{Binding AccXDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Acc Y"  x:Name="AccY" HorizontalAlignment="Left" Margin="15,24,0,0" VerticalAlignment="Top" IsChecked="{Binding AccYDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Acc Z"  x:Name="AccZ" HorizontalAlignment="Left" Margin="15,36,0,0" VerticalAlignment="Top" IsChecked="{Binding AccZDisp, Mode=TwoWay}"/>
+
+				<Label Content="Magnetometer" HorizontalAlignment="Left" Margin="100,-10,0,0" VerticalAlignment="Top" />
+				<CheckBox x:Name="MagX" Content="Mag X" HorizontalAlignment="Left" Margin="110,12,0,0" VerticalAlignment="Top" IsChecked="{Binding MagXDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Mag Y"  x:Name="MagY" HorizontalAlignment="Left" Margin="110,24,0,0" VerticalAlignment="Top" IsChecked="{Binding MagYDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Mag Z"  x:Name="MagZ" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="{Binding MagZDisp, Mode=TwoWay}"/>
+
+				<Label Content="Gyroscope" HorizontalAlignment="Left" Margin="200,-10,0,0" VerticalAlignment="Top" Height="34"/>
+				<CheckBox Content="Yaw"  x:Name="Yaw" HorizontalAlignment="Left" Margin="210,12,0,0" VerticalAlignment="Top" IsChecked="{Binding RollDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Pitch"  x:Name="Pitch" HorizontalAlignment="Left" Margin="210,24,0,0" VerticalAlignment="Top" IsChecked="{Binding PitchDisp, Mode=TwoWay}"/>
+				<CheckBox Content="Roll"  x:Name="Roll" HorizontalAlignment="Left" Margin="210,36,0,0" VerticalAlignment="Top" IsChecked="{Binding YawDisp, Mode=TwoWay}"/>
+			</Grid>
+		</GroupBox>
+		<Grid HorizontalAlignment="Left" Height="57" VerticalAlignment="Top" Width="257.603" Margin="181.397,10,0,0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="0*"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<RadioButton Content="Static Activity" HorizontalAlignment="Left" Margin="18,5.502,0,0" VerticalAlignment="Top" IsChecked="{Binding StaticActivity, Mode=TwoWay}"/>
+			<RadioButton Content="Dynamic Activity" HorizontalAlignment="Left" Margin="18,11.014,0,0" VerticalAlignment="Top" IsChecked="{Binding DynamicActivity, Mode=TwoWay}" Grid.Row="2"/>
+			<Button Content="Start" HorizontalAlignment="Left" Margin="143,-3.451,0,0" Width="101.603" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding ActivityIsEnabled}" Background="#FF0CE416" Grid.RowSpan="3" Height="55" VerticalAlignment="Top"/>
         </Grid>
-        <CheckBox Content="Rotate World" HorizontalAlignment="Left" Margin="329,13,0,0" VerticalAlignment="Top" Name="cbSimulate" Click="cbSimulate_Click" IsChecked="{Binding Path=RotateWorld, Mode=TwoWay}"/>
-        <RadioButton Content="Static Activity" HorizontalAlignment="Left" Margin="451,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=StaticActivity, Mode=TwoWay}"/>
-        <RadioButton Content="Dynamic Activity" HorizontalAlignment="Left" Margin="451,31,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=DynamicActivity, Mode=TwoWay}"/>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="573,10,0,0" VerticalAlignment="Top" Width="75" Height="55" Click="btnStartActivity_Click" x:Name="btnStartActivity" IsEnabled="{Binding Path=ActivityIsEnabled}"/>
-        <TextBlock x:Name="CountdownDisplay" HorizontalAlignment="Right" Margin="0,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="249" Height="122" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=TimeElapsed}" FontFamily="Jokerman" Foreground="Red"/>
-        <TextBlock x:Name="DispMessage" HorizontalAlignment="Left" Margin="23,85,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="740" Height="87" FontSize="40" Panel.ZIndex="2" Text="{Binding Path=DisplayMessage}" FontFamily="Jokerman" Foreground="Red"/>
-        <Label Content="{Binding Path=Temperature}" HorizontalAlignment="Left" Margin="687,10,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
-        <Label Content="{Binding Path=Altitude}" HorizontalAlignment="Left" Margin="687,31,0,0" VerticalAlignment="Top" Foreground="Red" FontWeight="Bold" FontSize="14"/>
-        <GroupBox Header="" HorizontalAlignment="Right" VerticalAlignment="Top" Width="323" Height="80" Margin="0,-5,0,0">
-            <Grid HorizontalAlignment="Left" Height="57" VerticalAlignment="Top" Width="313" Margin="0,0,-2,0">
-                <Label Content="Accelerometer" HorizontalAlignment="Left" Margin="5,-10,0,0" VerticalAlignment="Top" Height="30"/>
-                <CheckBox Content="Acc X"  x:Name="AccX" HorizontalAlignment="Left" Margin="15,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccXDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Acc Y"  x:Name="AccY" HorizontalAlignment="Left" Margin="15,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccYDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Acc Z"  x:Name="AccZ" HorizontalAlignment="Left" Margin="15,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=AccZDisp, Mode=TwoWay}"/>
-
-                <Label Content="Magnetometer" HorizontalAlignment="Left" Margin="100,-10,0,0" VerticalAlignment="Top" />
-                <CheckBox x:Name="MagX" Content="Mag X" HorizontalAlignment="Left" Margin="110,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagXDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Mag Y"  x:Name="MagY" HorizontalAlignment="Left" Margin="110,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagYDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Mag Z"  x:Name="MagZ" HorizontalAlignment="Left" Margin="110,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=MagZDisp, Mode=TwoWay}"/>
-
-                <Label Content="Gyroscope" HorizontalAlignment="Left" Margin="200,-10,0,0" VerticalAlignment="Top" Height="34"/>
-                <CheckBox Content="Yaw"  x:Name="Yaw" HorizontalAlignment="Left" Margin="210,12,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=RollDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Pitch"  x:Name="Pitch" HorizontalAlignment="Left" Margin="210,24,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=PitchDisp, Mode=TwoWay}"/>
-                <CheckBox Content="Roll"  x:Name="Roll" HorizontalAlignment="Left" Margin="210,36,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=YawDisp, Mode=TwoWay}"/>
-            </Grid>
+        <GroupBox Header="" HorizontalAlignment="Left" Margin="439,-1.92,0,0" VerticalAlignment="Top" Width="211.094" Height="72">
+        	<Grid HorizontalAlignment="Left" Height="66.451" Margin="10,0,-2,-12.96" VerticalAlignment="Top" Width="221.094">
+        		<Grid.RowDefinitions>
+        			<RowDefinition Height="5*"/>
+        			<RowDefinition Height="28*"/>
+        		</Grid.RowDefinitions>
+        		<CheckBox Content="Rotate World" HorizontalAlignment="Left" Margin="70,22,0,0" VerticalAlignment="Top" x:Name="cbSimulate" Click="cbSimulate_Click" IsChecked="{Binding RotateWorld, Mode=TwoWay}" Grid.Row="1"/>
+                <Button Content="ACC" HorizontalAlignment="Left" Margin="69.596,0.01,0,0" VerticalAlignment="Top" Width="46" Grid.RowSpan="2" Background="#FFF3B715" IsEnabled="{Binding ActivityIsEnabled}" Click="btnCalibAcc_Click"/>
+                <Button Content="MAG" HorizontalAlignment="Left" Margin="130.094,0.01,0,0" VerticalAlignment="Top" Width="51" RenderTransformOrigin="1.144,0.523" Grid.RowSpan="2" Background="#FFF3B715" IsEnabled="{Binding ActivityIsEnabled}" Click="btnCalibMag_Click"/>
+        		<Label Content="Calibrate:" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.391,1.252" Width="63.596" Grid.RowSpan="2" Margin="0,-3,0,0"/>
+        	</Grid>
         </GroupBox>
     </Grid>
 </Window>

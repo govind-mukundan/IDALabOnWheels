@@ -111,6 +111,8 @@ namespace IDALabOnWheels
         DR.Color COLOR_GYR_Y = DR.Color.DarkMagenta;
         DR.Color COLOR_GYR_Z = DR.Color.Blue;
 
+        string CALIB_CODE = "idalabsg";
+
 
         // TODO: Graph ?? Temp, Altitude display, Calibrarion buttons, complete dynamic activity
         /// <summary>
@@ -648,12 +650,61 @@ namespace IDALabOnWheels
             {
                 Attitude att = null;
 
-                if (EWBBoard != null) att = EWBBoard.GetAverageAttitude();
+                #region Read Sensor Data
+                if (EWBBoard != null)
+                {
+                    att = EWBBoard.GetAverageAttitude();
+
+                    Acceleration[] acc = EWBBoard.GetAcceleration();
+                    if (acc != null)
+                    {
+                        vec3[] data = new vec3[acc.Length];
+                        for (int i = 0; i < acc.Length; i++)
+                        {
+                            data[i] = acc[i].ToVec3();
+                        }
+                        RawAccPlot.FillBuffer(data);
+                    }
+                    MagneticField[] mag = EWBBoard.GetCompass();
+                    if (mag != null)
+                    {
+                        vec3[] data = new vec3[mag.Length];
+                        for (int i = 0; i < mag.Length; i++)
+                        {
+                            data[i] = mag[i].ToVec3();
+                        }
+                        RawMagPlot.FillBuffer(data);
+                    }
+                    Rotation[] rot = EWBBoard.GetGyro();
+                    if (rot != null)
+                    {
+                        vec3[] data = new vec3[rot.Length];
+                        for (int i = 0; i < rot.Length; i++)
+                        {
+                            data[i] = rot[i].ToVec3();
+                        }
+                        RawGyroPlot.FillBuffer(data);
+                    }
+
+                }
+                #endregion
+
 
                 if (att != null)
                 {
                     Debug.WriteLine("Attitude: X = {0}, Y = {1}, Head = {2}", att.angleX, att.angleY, att.heading);
 
+                    if (_staticActivity != null)
+                    {
+                        if (_staticActivity.Process(att))
+                            _staticActivity.Stop();
+                    }
+
+                    if (_dynamicActivity != null)
+                    {
+                        if (_dynamicActivity.Process(att))
+                            _dynamicActivity.Stop();
+                    }
                     // Conceptually operations need to be performed in the order - Scale, Rotate and Translate
                     // However the order of matrix multiplication is reversed - so matrices must be multiplied in the sequence - Translate, Rotate and Scale
                     // to get Scale, Rotate and Translate effect on the actual data.
@@ -717,12 +768,6 @@ namespace IDALabOnWheels
             textureShader.SetUniform(GL, "specLight.Ks", new vec3(1f, 1f, 1f));
             textureShader.SetUniform(GL, "specLight.Shininess", 50f);
 
-            //textureShader.SetUniform(GL, "sunLight.vColor", new vec3(1f, 1f, 1f));
-            //textureShader.SetUniform(GL, "sunLight.Ka", new vec3(.8f, .8f, .8f));
-            //textureShader.SetUniform(GL, "sunLight.Kd", new vec3(1f, 1f, 1f));
-            //textureShader.SetUniform(GL, "sunLight.vDirection", new vec3(0f, 0f, -1f));
-            //textureShader.SetUniform(GL, "specLight.vDirection", new vec3(0f, 0f, 0f)); 
-
             skyBox.renderSkybox(GL, textureShader);
             textureShader.Unbind(GL);
 
@@ -771,7 +816,7 @@ namespace IDALabOnWheels
                     EWBBoard.DoOnQuit();
                     this.btnConnect.Content = "Connect";
                     MainVM.StartStopIsEnabled = false;
-                    
+                    MainVM.ActivityIsEnabled = false;
                 }
             }
             else
@@ -783,10 +828,12 @@ namespace IDALabOnWheels
                     Debug.WriteLine("Opened port to :" + cmbxPorts.Text);
                     Properties.Settings.Default.SelectedPort = cmbxPorts.SelectedIndex;
                     this.btnConnect.Content = "Disconnect";
+                    _enableStop = false;
+                    MainVM.ActivityIsEnabled = true;
+                    Thread.Sleep(3000);
+                    btnStart_Click(null, null);
                 }
             }
-            MainVM.ActivityIsEnabled = false;
-
         }
 
 
@@ -835,6 +882,43 @@ namespace IDALabOnWheels
         private void CountdownTimer_Completed(object sender, EventArgs e)
         {
             MessageBox.Show("Time's up!");
+        }
+
+        private void btnCalibMag_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new DialogWindow();
+
+            if (dialog.ShowDialog() == true)
+            {
+                //MessageBox.Show("You said: " + dialog.ResponseText);
+                if (dialog.ResponseText.ToLower() == CALIB_CODE)
+                {
+                    EWBBoard.RequestMagCalib();
+                    MessageBox.Show("Calibration of magnetometer started!\nPlease rotate module in all axes until status LED turns OFF", "OK!");
+                }
+                else
+                {
+                    MessageBox.Show("Incorrect code, please try again!","ERROR!");
+                }
+            }
+        }
+
+        private void btnCalibAcc_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new DialogWindow();
+            if (dialog.ShowDialog() == true)
+            {
+                //MessageBox.Show("You said: " + dialog.ResponseText);
+                if (dialog.ResponseText.ToLower() == CALIB_CODE)
+                {
+                    EWBBoard.RequestAccCalib();
+                    MessageBox.Show("Calibration of accelerometer started!\nPlease keep board at flat level until status LED turns OFF", "OK!");
+                }
+                else
+                {
+                    MessageBox.Show("Incorrect code, please try again!", "ERROR!");
+                }
+            }
         }
 
         /// <summary>
@@ -964,6 +1048,7 @@ namespace IDALabOnWheels
         }
 
 
+        #region Unused
 
 
         // render an OBJ object
@@ -1316,7 +1401,7 @@ namespace IDALabOnWheels
 
         Texture _texture;
 
-
+        #endregion
 
     }
 

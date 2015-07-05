@@ -83,6 +83,9 @@
     <Compile Include="Activity.cs" />
     <Compile Include="ActivityTimer.cs" />
     <Compile Include="Compass.cs" />
+    <Compile Include="DialogWindow.xaml.cs">
+      <DependentUpon>DialogWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DynamicActivity.cs" />
     <Compile Include="GShaderProgram.cs" />
     <Compile Include="LinePlot.cs" />
@@ -98,6 +101,10 @@
     <Compile Include="Uniforms.cs" />
     <Compile Include="VertexAttributes.cs" />
     <Compile Include="ViewModelEntity.cs" />
+    <Page Include="DialogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
